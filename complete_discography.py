@@ -12,6 +12,8 @@ Input: Artist name
 
 Output: HTML page containing a table of all albums by all artists for which the given artist is an alias or a group member.
 
+Usage: python complete_discography.py [artist name] > outfile.html
+
 Written by Daniel Lovette
 https://github.com/dfunklove
 """
@@ -79,7 +81,7 @@ def complete_discography(name):
 # Main Program
 #
 if (len(sys.argv) < 2):
-	print("usage: python "+sys.argv[0]+" [artist name] > outfile.html")
+	print("Usage: python "+sys.argv[0]+" [artist name] > outfile.html")
 	exit()
 
 complete_discography(sys.argv[1])
