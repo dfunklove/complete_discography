@@ -15,6 +15,7 @@ Updated by Daniel Lovette for compatibility with Python 3.6.9
 
 PERMANENT_CACHE_FNAME = "permanent_cache.txt"
 TEMP_CACHE_FNAME = "this_page_cache.txt"
+DEBUG = False
 
 class Response:
     "A stub which holds just enough data to emulate requests.Response for the needs of this program."
@@ -67,17 +68,23 @@ def get(baseurl, params={}, private_keys_to_ignore=["api_key"], permanent_cache_
     permanent_cache = _read_from_file(permanent_cache_file)
     temp_cache = _read_from_file(temp_cache_file)
     if cache_key in temp_cache:
-        #print("found in temp_cache")
+        if DEBUG:
+            print("found in temp_cache")
         # make a Response object containing text from the change, and the full_url that would have been fetched
         return Response(temp_cache[cache_key], full_url)
     elif cache_key in permanent_cache:
-        #print("found in permanent_cache")
+        if DEBUG:
+            print("found in permanent_cache")
         # make a Response object containing text from the change, and the full_url that would have been fetched
         return Response(permanent_cache[cache_key], full_url)
     else:
-        #print("new; adding to cache")
+        if DEBUG:
+            print("new; adding to cache")
         # actually request it
         resp = requests.get(baseurl, params)
         # save it
-        add_to_cache(temp_cache_file, cache_key, resp.text)
+        if resp.status_code == requests.codes.ok:
+            add_to_cache(temp_cache_file, cache_key, resp.text)
+        elif DEBUG:
+            print(f"not adding due to error code {resp.status_code}")
         return resp
