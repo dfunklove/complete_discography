@@ -1,3 +1,4 @@
+import json
 import sys
 import re
 import requests_with_caching
@@ -6,11 +7,11 @@ from bs4 import BeautifulSoup
 """
 complete_discography.py
 
-Assemble a complete HTML discography for an artist based on "Aliases" and "In Groups" data from Discogs.com.
+Assemble a complete discography for an artist based on "Aliases" and "In Groups" data from Discogs.com.
 
 Input: Artist name
 
-Output: HTML page containing a table of all albums by all artists for which the given artist is an alias or a group member.
+Output: List of all albums by all artists for which the given artist is an alias or a group member.
 
 Usage: python complete_discography.py [artist name] > outfile.html
 
@@ -19,69 +20,85 @@ https://github.com/dfunklove
 """
 
 PARSER = 'lxml'
-BASE_URL = 'https://discogs.com'
+BASE_URL = 'https://api.discogs.com'
+API_KEY = 'EtNnhmPqmhSULCVJHRRx'
+API_SECRET = 'VLSajjYuNLcuDKeRQzmrwwhnKlRYBLsn'
 
-def find_profile_links(soup, search_string):
-	""" Find links in html based on the class and string content of a div """
+def find_artist_id(name):
+	"Query the discogs api to get an artist id for the given name"
 
-	profile_links = {}
-	div_prefix = soup.find('div', class_='head', string=re.compile(search_string))
-	if div_prefix:
-		for s in div_prefix.next_siblings:
-			if s.name == 'div':  # Found the aliases!
-				for a in s.find_all('a'):
-					profile_links[a.text] = a.get('href')
-				break
-	return profile_links
+	if not name:
+		return None
 
-def find_related_artist_links(soup):
-	return {**find_profile_links(soup, "Aliases"), **find_profile_links(soup, "In Groups")}
+	url = BASE_URL + "/database/search"
+	params = { 'anv': name, 'key': API_KEY, 'secret': API_SECRET }
+	response = requests_with_caching.get(url, params)
+	result = json.loads(response.text)
+	#print(response.url)
+	#print(json.dumps(result, indent=2))
 
-def find_album_rows(soup):
-	results = []
-	table = soup.find(id="artist")
-	grab_next = False
-	for row in table.find_all('tr'):
-		if "Albums" in row.text:
-			grab_next = True
-		elif grab_next:
-			if 'card' in row.get('class'):
-				results.append(row.prettify())
-			else:
-				break
-	return results
+	first = result['results'][0]
+	if first['type'] == 'artist':
+		return first['id']
+	else:
+		return None
 
-def find_url_for_artist(name):
-	url = "https://www.discogs.com/search/"
-	params = { 'type': 'artist', 'q': name }
-	search_result = requests_with_caching.get(url, params)
-	soup = BeautifulSoup(search_result.text, PARSER)
-	return soup.find(id="search_results").a.get("href")
+
+def find_artist_info(artist_id):
+	"Query the discogs api to get info for the given artist id"
+
+	if not artist_id:
+		return None
+
+	url = f"{BASE_URL}/artists/{artist_id}"
+	response = requests_with_caching.get(url)
+	return json.loads(response.text)
+
+
+def find_releases(artist_id):
+	"Query the discogs api to get all releases for the given artist id"
+
+	if not artist_id:
+		return None
+
+	url = f"{BASE_URL}/artists/{artist_id}/releases"
+	response = requests_with_caching.get(url)
+	result = json.loads(response.text)
+
+	# put results in a dict to guarantee uniqueness
+	retval = {}
+	for i in result['releases']:
+		if i['role']=='Main':
+			retval[i['id']] = i
+	return retval
+
 
 def complete_discography(name):
-	artist_url = find_url_for_artist(name)
-	artist_page = requests_with_caching.get(BASE_URL + artist_url)
-	soup = BeautifulSoup(artist_page.text, PARSER)
-	artist_links = find_related_artist_links(soup)
+	artist_id = find_artist_id(name)
+	#print(f"artist_id = {artist_id}")
 
-	album_rows = []
-	for a in artist_links.keys():
-		artist_page = requests_with_caching.get(BASE_URL + artist_links[a])
-		soup = BeautifulSoup(artist_page.text, PARSER)
-		album_rows += find_album_rows(soup)
+	artist_info = find_artist_info(artist_id)
+	#print(json.dumps(artist_info, indent=2))
 
-	print("<html><body><table>")
-	for k in album_rows:
-		k = k.replace("href=\"", "href=\""+BASE_URL);
-		k = k.replace("href='", "href='"+BASE_URL);
-		print(k)
-	print("</table></body></html>")
+	all_releases = find_releases(artist_id)
+
+	for alias in artist_info['aliases']:
+		all_releases.update(find_releases(alias['id']))
+
+	for group in artist_info['groups']:
+		all_releases.update(find_releases(group['id']))
+
+	#print(json.dumps(all_releases, indent=2))
+	#print(len(all_releases))
+
+	return list(all_releases.values())
 
 #
 # Main Program
 #
-if (len(sys.argv) < 2):
-	print("Usage: python "+sys.argv[0]+" [artist name] > outfile.html")
-	exit()
+if __name__ == '__main__':
+	if (len(sys.argv) < 2):
+		print("Usage: python "+sys.argv[0]+" [artist name] > outfile.html")
+		exit()
 
-complete_discography(sys.argv[1])
+	complete_discography(sys.argv[1])
