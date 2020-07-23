@@ -13,8 +13,8 @@ This chapter can be unlocked by accessing the above online book through the cour
 Updated by Daniel Lovette for compatibility with Python 3.6.9
 """
 
-PERMANENT_CACHE_FNAME = "permanent_cache.txt"
-TEMP_CACHE_FNAME = "this_page_cache.txt"
+PERMANENT_CACHE_FNAME = "/tmp/permanent_cache.txt"
+TEMP_CACHE_FNAME = "/tmp/this_page_cache.txt"
 DEBUG = False
 
 class Response:
