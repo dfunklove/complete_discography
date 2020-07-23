@@ -1,8 +1,7 @@
 import json
 import sys
 import re
-import requests_with_caching
-from bs4 import BeautifulSoup
+from . import requests_with_caching
 
 """
 complete_discography.py
@@ -11,7 +10,7 @@ Assemble a complete discography for an artist based on "Aliases" and "In Groups"
 
 Input: Artist name
 
-Output: List of all albums by all artists for which the given artist is an alias or a group member.
+Output: HTML table of all albums by all artists for which the given artist is an alias or a group member.
 
 Usage: python complete_discography.py [artist name] > outfile.html
 
@@ -73,7 +72,34 @@ def find_releases(artist_id):
 	return retval
 
 
-def complete_discography(name):
+def disco_table(releases):
+	"Accept release data from discogs api and put it in an html table"
+
+	# artist title label catno country year
+
+	fields = ['artist', 'title', 'label', 'year']
+	output = "<table>"
+	for r in releases:
+		output += "<tr>"
+		for f in fields:
+			if f in r:
+				output += f"<td>{r[f]}</td>"
+			else:
+				output += "<td></td>"
+		output += "</tr>\n"
+	output += "</table>"
+
+	return output
+
+
+def get_discography(name):
+	"""
+	Assemble a complete discography for an artist based on "Aliases" and "In Groups" data from Discogs.com
+
+	Input: artist name
+	Output: html table of releases by artist
+	"""
+
 	artist_id = find_artist_id(name)
 	#print(f"artist_id = {artist_id}")
 
@@ -91,14 +117,13 @@ def complete_discography(name):
 	#print(json.dumps(all_releases, indent=2))
 	#print(len(all_releases))
 
-	return list(all_releases.values())
+	return disco_table(all_releases.values())
 
 #
 # Main Program
 #
-if __name__ == '__main__':
-	if (len(sys.argv) < 2):
-		print("Usage: python "+sys.argv[0]+" [artist name] > outfile.html")
-		exit()
+if (len(sys.argv) < 2):
+	print("Usage: python "+sys.argv[0]+" [artist name] > outfile.html")
+	exit()
 
-	complete_discography(sys.argv[1])
+get_discography(sys.argv[1])
