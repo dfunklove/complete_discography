@@ -112,11 +112,13 @@ def get_discography(name):
 
 	all_releases = find_releases(artist_id)
 
-	for alias in artist_info['aliases']:
-		all_releases.update(find_releases(alias['id']))
+	if 'aliases' in artist_info:
+		for alias in artist_info['aliases']:
+			all_releases.update(find_releases(alias['id']))
 
-	for group in artist_info['groups']:
-		all_releases.update(find_releases(group['id']))
+	if 'groups' in artist_info:
+		for group in artist_info['groups']:
+			all_releases.update(find_releases(group['id']))
 
 	#print(json.dumps(all_releases, indent=2))
 	#print(len(all_releases))
