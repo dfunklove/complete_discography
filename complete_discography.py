@@ -121,7 +121,9 @@ def get_discography(name):
 	#print(json.dumps(all_releases, indent=2))
 	#print(len(all_releases))
 
-	return disco_table(all_releases.values())
+	all_releases = sorted(all_releases.values(), key=lambda x: x['year'] if 'year' in x else 3000)
+
+	return disco_table(all_releases)
 
 #
 # Main Program
