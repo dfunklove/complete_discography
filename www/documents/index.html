@@ -17,7 +17,11 @@
       $("#submit").click(function() {
         let uri = encodeURI("/app/discography/"+$("#artist").val())
         console.log("uri="+uri)
-        $("#disco").load(uri)
+        let btnText = $("#submit").html()
+        $("#submit").html("Loading...")
+        $("#disco").load(uri, function() {
+          $("#submit").html(btnText)
+        })
         $("#disco-container").show()
       })
     })
