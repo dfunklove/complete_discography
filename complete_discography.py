@@ -31,24 +31,20 @@ def find_artist_id(name):
 		return None
 
 	url = BASE_URL + "/database/search"
-	params = AUTH_PARAMS
-	params['anv'] = name
+	params = AUTH_PARAMS.copy()
+	name = name.strip()
+	params['q'] = name
+	params['type'] = 'artist'
 	response = requests_with_caching.get(url, params)
 	result = json.loads(response.text)
-	#print(response.url)
-	#print(json.dumps(result, indent=2))
+	
+	#TODO remove print
+	print(response.url)
+	print(json.dumps(result, indent=2))
 
-	first = result['results'][0]
-	if first['type'] == 'artist':
-		for a in result['results']:
-			if a['title'] == name:
-				return a['id']
-		for a in result['results']:
-			if name in a['title']:
-				return a['id']
-		return first['id']
-	else:
-		return None
+	for a in result['results']:
+		if 'title' in a and name.upper() == a['title'].upper():
+			return a['id']
 
 
 def find_artist_info(artist_id):
@@ -65,16 +61,23 @@ def find_artist_info(artist_id):
 def find_releases(artist_id):
 	"Query the discogs api to get all releases for the given artist id"
 
-	if not artist_id:
-		return None
+	if artist_id:
+		params = AUTH_PARAMS.copy()
+		params['per_page'] = 100
+		return find_releases_on_page(f"{BASE_URL}/artists/{artist_id}/releases", params)
+	else:
+		return {}
 
-	url = f"{BASE_URL}/artists/{artist_id}/releases"
-	response = requests_with_caching.get(url, AUTH_PARAMS)
+
+def find_releases_on_page(url, params=None):
+	"Return a all releases from the given page and all following pages"
+
+	response = requests_with_caching.get(url, params)
 	result = json.loads(response.text)
-
-	#print(url)
-	#print(response.headers)
-	#print(json.dumps(result, indent=2))
+	
+	#TODO remove print
+	print(response.url)
+	print(json.dumps(result, indent=2))
 
 	# put results in a dict to guarantee uniqueness
 	retval = {}
@@ -82,8 +85,16 @@ def find_releases(artist_id):
 		for i in result['releases']:
 			if i['role']=='Main':
 				retval[i['id']] = i
-	return retval
 
+	# if not found on this page, get the next one
+	try:
+		url = result['pagination']['urls']['next']
+		retval.update(find_releases_on_page(url))
+	except KeyError:
+		pass
+
+	return retval
+	
 
 def disco_table(releases):
 	"Accept release data from discogs api and put it in an html table"
@@ -117,8 +128,12 @@ def get_discography(name):
 	Output: html table of releases by artist
 	"""
 
+	empty_result = "No results found."
+	
 	artist_id = find_artist_id(name)
 	#print(f"artist_id = {artist_id}")
+	if not artist_id:
+		return empty_result
 
 	artist_info = find_artist_info(artist_id)
 	#print(json.dumps(artist_info, indent=2))
