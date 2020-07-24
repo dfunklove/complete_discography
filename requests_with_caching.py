@@ -16,6 +16,7 @@ Updated by Daniel Lovette for compatibility with Python 3.6.9
 PERMANENT_CACHE_FNAME = "/tmp/permanent_cache.txt"
 TEMP_CACHE_FNAME = "/tmp/this_page_cache.txt"
 DEBUG = False
+DISABLE_CACHING = False
 
 class Response:
     "A stub which holds just enough data to emulate requests.Response for the needs of this program."
@@ -62,6 +63,10 @@ def get(baseurl, params={}, private_keys_to_ignore=["api_key"], permanent_cache_
     Look in temp_cache first, then permanent_cache.
     If not found, fetch data from the internet.
     """
+
+    if DISABLE_CACHING:
+        return requests.get(baseurl, params)
+
     full_url = requests.Request("GET", baseurl, params).prepare().url
     cache_key = make_cache_key(baseurl, params, private_keys_to_ignore)
     # Load the permanent and page-specific caches from files
