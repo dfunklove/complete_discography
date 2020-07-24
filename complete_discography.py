@@ -22,6 +22,7 @@ PARSER = 'lxml'
 BASE_URL = 'https://api.discogs.com'
 API_KEY = 'EtNnhmPqmhSULCVJHRRx'
 API_SECRET = 'VLSajjYuNLcuDKeRQzmrwwhnKlRYBLsn'
+AUTH_PARAMS = { 'key': API_KEY, 'secret': API_SECRET }
 
 def find_artist_id(name):
 	"Query the discogs api to get an artist id for the given name"
@@ -30,7 +31,8 @@ def find_artist_id(name):
 		return None
 
 	url = BASE_URL + "/database/search"
-	params = { 'anv': name, 'key': API_KEY, 'secret': API_SECRET }
+	params = AUTH_PARAMS
+	params['anv'] = name
 	response = requests_with_caching.get(url, params)
 	result = json.loads(response.text)
 	#print(response.url)
@@ -38,6 +40,12 @@ def find_artist_id(name):
 
 	first = result['results'][0]
 	if first['type'] == 'artist':
+		for a in result['results']:
+			if a['title'] == name:
+				return a['id']
+		for a in result['results']:
+			if name in a['title']:
+				return a['id']
 		return first['id']
 	else:
 		return None
@@ -50,7 +58,7 @@ def find_artist_info(artist_id):
 		return None
 
 	url = f"{BASE_URL}/artists/{artist_id}"
-	response = requests_with_caching.get(url)
+	response = requests_with_caching.get(url, AUTH_PARAMS)
 	return json.loads(response.text)
 
 
@@ -61,8 +69,12 @@ def find_releases(artist_id):
 		return None
 
 	url = f"{BASE_URL}/artists/{artist_id}/releases"
-	response = requests_with_caching.get(url)
+	response = requests_with_caching.get(url, AUTH_PARAMS)
 	result = json.loads(response.text)
+
+	#print(url)
+	#print(response.headers)
+	#print(json.dumps(result, indent=2))
 
 	# put results in a dict to guarantee uniqueness
 	retval = {}
