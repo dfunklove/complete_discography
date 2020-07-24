@@ -78,9 +78,10 @@ def find_releases(artist_id):
 
 	# put results in a dict to guarantee uniqueness
 	retval = {}
-	for i in result['releases']:
-		if i['role']=='Main':
-			retval[i['id']] = i
+	if 'releases' in result:
+		for i in result['releases']:
+			if i['role']=='Main':
+				retval[i['id']] = i
 	return retval
 
 
