@@ -46,7 +46,7 @@ def add_to_cache(cache_file, cache_key, cache_value):
 def clear_cache(cache_file=TEMP_CACHE_FNAME):
     _write_to_file({}, cache_file)
 
-def make_cache_key(baseurl, params_d, private_keys=["api_key"]):
+def make_cache_key(baseurl, params_d, private_keys=[]):
     """Makes a long string representing the query.
     Alphabetize the keys from the params dictionary so we get the same order each time.
     Omit keys with private info."""
@@ -57,39 +57,44 @@ def make_cache_key(baseurl, params_d, private_keys=["api_key"]):
             res.append("{}-{}".format(k, params_d[k]))
     return baseurl + "_".join(res)
 
-def get(baseurl, params={}, private_keys_to_ignore=["api_key"], permanent_cache_file=PERMANENT_CACHE_FNAME, temp_cache_file=TEMP_CACHE_FNAME):
+def get(baseurl, params=None, private_keys_to_ignore=["key", "secret"], permanent_cache_file=PERMANENT_CACHE_FNAME, temp_cache_file=TEMP_CACHE_FNAME):
     """
     Return a Response object (defined in this file) for the given URL.  
     Look in temp_cache first, then permanent_cache.
     If not found, fetch data from the internet.
     """
 
-    if DISABLE_CACHING:
-        return requests.get(baseurl, params)
-
-    full_url = requests.Request("GET", baseurl, params).prepare().url
+    print(f"params = {params}")
+    if params == None:
+        params = {}
+    for k in params:
+        params[k] = str(params[k])
     cache_key = make_cache_key(baseurl, params, private_keys_to_ignore)
-    # Load the permanent and page-specific caches from files
-    permanent_cache = _read_from_file(permanent_cache_file)
-    temp_cache = _read_from_file(temp_cache_file)
-    if cache_key in temp_cache:
-        if DEBUG:
-            print("found in temp_cache")
-        # make a Response object containing text from the change, and the full_url that would have been fetched
-        return Response(temp_cache[cache_key], full_url)
-    elif cache_key in permanent_cache:
-        if DEBUG:
-            print("found in permanent_cache")
-        # make a Response object containing text from the change, and the full_url that would have been fetched
-        return Response(permanent_cache[cache_key], full_url)
-    else:
-        if DEBUG:
-            print("new; adding to cache")
-        # actually request it
-        resp = requests.get(baseurl, params)
-        # save it
-        if resp.status_code == requests.codes.ok:
-            add_to_cache(temp_cache_file, cache_key, resp.text)
-        elif DEBUG:
-            print(f"not adding due to error code {resp.status_code}")
-        return resp
+
+    if not DISABLE_CACHING:
+        full_url = requests.Request("GET", baseurl, params).prepare().url
+
+        # Load the permanent and page-specific caches from files
+        permanent_cache = _read_from_file(permanent_cache_file)
+        temp_cache = _read_from_file(temp_cache_file)
+        if cache_key in temp_cache:
+            if DEBUG:
+                print("found in temp_cache")
+            # make a Response object containing text from the change, and the full_url that would have been fetched
+            return Response(temp_cache[cache_key], full_url)
+        elif cache_key in permanent_cache:
+            if DEBUG:
+                print("found in permanent_cache")
+            # make a Response object containing text from the change, and the full_url that would have been fetched
+            return Response(permanent_cache[cache_key], full_url)
+
+    if DEBUG:
+        print("new; adding to cache")
+    # actually request it
+    resp = requests.get(baseurl, params)
+    # save it
+    if resp.status_code == requests.codes.ok:
+        add_to_cache(temp_cache_file, cache_key, resp.text)
+    elif DEBUG:
+        print(f"not adding due to error code {resp.status_code}")
+    return resp
