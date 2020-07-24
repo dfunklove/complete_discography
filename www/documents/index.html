@@ -7,8 +7,8 @@
 
   <!-- Display the same in all browsers.  Must be first stylesheet. -->
   <link href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css" rel="stylesheet" type="text/css" />
-  
-  <link href="style.css" rel="stylesheet" type="text/css" />
+  <link href="style/lib/bootstrap.min.css" rel="stylesheet" type="text/css" />
+  <link href="style/style.css" rel="stylesheet" type="text/css" />
 
   <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script> 
   <script>
@@ -18,22 +18,30 @@
         let uri = encodeURI("/app/discography/"+$("#artist").val())
         console.log("uri="+uri)
         $("#disco").load(uri)
-        $("#disco").show()
+        $("#disco-container").show()
       })
     })
   </script>
 </head>
 <body>
-  <header>
-    <h1>Complete Discography</h1>
-    <p>If you follow an artist who performs in several different bands, this tool is for you. 
-      Enter their name to get a list of every album they've released under all of their various bands and aliases.</p>
-    <form>
-      <label>Artist Name</label>
-      <input id="artist">
-    </form>
-    <button id="submit">Go!</button>
-    <div id="disco"></div>
-  </header>
-</body>
+  <main class="center-contents">
+    <div class="spacey">
+      <h1>Complete Discography</h1>
+      <p>If you follow an artist who performs in several different bands, this tool is for you. 
+        Enter their name to get a list of every album they've released under all of their various bands and aliases.</p>
+      <form class="bs-component">
+        <div class="form-group">
+          <label for="artist" class="col-form-label-lg">Artist Name</label><br>
+          <input class="form-control-lg center-contents" id="artist">
+        </div>
+      </form>
+      <button class="btn btn-primary btn-lg" id="submit">Go!</button>
+    </div>
+    <div id="disco-container" class="hidden">
+      <div class="center-me jumbotron-background">
+        <h1 class="display-3">Results</h1>
+        <div id="disco" class="center-me little-spacey"></div>
+      </div>
+    </div>
+  </main>
 </html>

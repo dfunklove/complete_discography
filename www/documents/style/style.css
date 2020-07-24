@@ -1,0 +1,30 @@
+.hidden {
+  display: none
+}
+
+.center-contents {
+	text-align: center;
+}
+
+.center-me {
+  display: inline-block;
+}
+
+.block {
+  display: block;
+}
+
+.spacey {
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+}
+
+.little-spacey {
+  padding: 1rem 1rem;
+  margin-bottom: 2rem; 
+}
+
+.jumbotron-background {
+  background-color: #073642;
+}
+
