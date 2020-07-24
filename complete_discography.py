@@ -78,7 +78,11 @@ def disco_table(releases):
 	# artist title label catno country year
 
 	fields = ['artist', 'title', 'label', 'year']
-	output = "<table>"
+	output = "<table><tr>"
+	for f in fields:
+		pretty = f.capitalize()
+		output += f"<th>{pretty}</th>"
+	output += "</tr>\n"
 	for r in releases:
 		output += "<tr>"
 		for f in fields:
@@ -122,8 +126,9 @@ def get_discography(name):
 #
 # Main Program
 #
-if (len(sys.argv) < 2):
-	print("Usage: python "+sys.argv[0]+" [artist name] > outfile.html")
-	exit()
+if __name__ == '__main__':
+	if (len(sys.argv) < 2):
+		print("Usage: python "+sys.argv[0]+" [artist name] > outfile.html")
+		exit()
 
-get_discography(sys.argv[1])
+	get_discography(sys.argv[1])
