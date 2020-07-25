@@ -12,19 +12,17 @@
 
   <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script> 
   <script>
-    $(function() {
-      console.log("here")
-      $("#submit").click(function() {
-        let uri = encodeURI("/app/discography/"+$("#artist").val())
-        console.log("uri="+uri)
-        let btnText = $("#submit").html()
-        $("#submit").html("Loading...")
-        $("#disco").load(uri, function() {
-          $("#submit").html(btnText)
-        })
-        $("#disco-container").show()
+    function formSubmit(e) {
+      e.preventDefault()
+      let uri = encodeURI("/app/discography/"+$("#artist").val())
+      console.log("uri="+uri)
+      let btnText = $("#submit").html()
+      $("#submit").html("Loading...")
+      $("#disco").load(uri, function() {
+        $("#submit").html(btnText)
       })
-    })
+      $("#disco-container").show()
+    }
   </script>
 </head>
 <body>
@@ -38,13 +36,13 @@
           via their handy <a href="https://www.discogs.com/developers">API</a>.  
           Check out the source code on <a href="https://github.com/dfunklove/complete-discography">GitHub</a>.</p>
       </div>
-      <form class="bs-component">
+      <form class="bs-component" onsubmit="formSubmit(event)">
         <div class="form-group">
           <label for="artist" class="col-form-label-lg">Artist Name</label><br>
           <input class="form-control-lg center-contents" id="artist">
         </div>
       </form>
-      <button class="btn btn-primary btn-lg" id="submit">Go!</button>
+      <button class="btn btn-primary btn-lg" id="submit" onclick="formSubmit(event)">Go!</button>
     </div>
     <div id="disco-container" class="hidden spacey big-bottom">
       <div class="center-me jumbotron-background">
