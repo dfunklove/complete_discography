@@ -23,6 +23,7 @@ BASE_URL = 'https://api.discogs.com'
 API_KEY = 'EtNnhmPqmhSULCVJHRRx'
 API_SECRET = 'VLSajjYuNLcuDKeRQzmrwwhnKlRYBLsn'
 AUTH_PARAMS = { 'key': API_KEY, 'secret': API_SECRET }
+DEFAULT_HEADERS = { 'user-agent': 'dfunklove_Complete_Discography/0.1 +https://dlove.it' }
 
 def find_artist_id(name):
 	"Query the discogs api to get an artist id for the given name"
@@ -35,7 +36,7 @@ def find_artist_id(name):
 	name = name.strip()
 	params['q'] = name
 	params['type'] = 'artist'
-	response = requests_with_caching.get(url, params)
+	response = requests_with_caching.get(url, params=params, headers=DEFAULT_HEADERS)
 	result = json.loads(response.text)
 	
 	#TODO remove print
@@ -54,7 +55,7 @@ def find_artist_info(artist_id):
 		return None
 
 	url = f"{BASE_URL}/artists/{artist_id}"
-	response = requests_with_caching.get(url, AUTH_PARAMS)
+	response = requests_with_caching.get(url, params=AUTH_PARAMS, headers=DEFAULT_HEADERS)
 	return json.loads(response.text)
 
 
@@ -72,7 +73,7 @@ def find_releases(artist_id):
 def find_releases_on_page(url, params=None):
 	"Return a all releases from the given page and all following pages"
 
-	response = requests_with_caching.get(url, params)
+	response = requests_with_caching.get(url, params=params, headers=DEFAULT_HEADERS)
 	result = json.loads(response.text)
 	
 	#TODO remove print
