@@ -16,7 +16,7 @@ Updated by Daniel Lovette for compatibility with Python 3.6.9
 PERMANENT_CACHE_FNAME = "/tmp/permanent_cache.txt"
 TEMP_CACHE_FNAME = "/tmp/this_page_cache.txt"
 DEBUG = False
-DISABLE_CACHING = False
+DISABLE_CACHING = True
 
 class Response:
     "A stub which holds just enough data to emulate requests.Response for the needs of this program."
@@ -57,7 +57,7 @@ def make_cache_key(baseurl, params_d, private_keys=[]):
             res.append("{}-{}".format(k, params_d[k]))
     return baseurl + "_".join(res)
 
-def get(baseurl, params=None, private_keys_to_ignore=["key", "secret"], permanent_cache_file=PERMANENT_CACHE_FNAME, temp_cache_file=TEMP_CACHE_FNAME):
+def get(baseurl, params=None, headers=None, private_keys_to_ignore=["key", "secret"], permanent_cache_file=PERMANENT_CACHE_FNAME, temp_cache_file=TEMP_CACHE_FNAME):
     """
     Return a Response object (defined in this file) for the given URL.  
     Look in temp_cache first, then permanent_cache.
@@ -69,10 +69,12 @@ def get(baseurl, params=None, private_keys_to_ignore=["key", "secret"], permanen
         params = {}
     for k in params:
         params[k] = str(params[k])
+    if headers == None:
+        headers = {}
     cache_key = make_cache_key(baseurl, params, private_keys_to_ignore)
 
     if not DISABLE_CACHING:
-        full_url = requests.Request("GET", baseurl, params).prepare().url
+        full_url = requests.Request("GET", baseurl, params=params, headers=headers).prepare().url
 
         # Load the permanent and page-specific caches from files
         permanent_cache = _read_from_file(permanent_cache_file)
@@ -91,7 +93,7 @@ def get(baseurl, params=None, private_keys_to_ignore=["key", "secret"], permanen
     if DEBUG:
         print("new; adding to cache")
     # actually request it
-    resp = requests.get(baseurl, params)
+    resp = requests.get(baseurl, params=params, headers=headers)
     # save it
     if resp.status_code == requests.codes.ok:
         add_to_cache(temp_cache_file, cache_key, resp.text)
