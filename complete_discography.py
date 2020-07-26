@@ -71,7 +71,10 @@ def find_releases(artist_id):
 
 
 def find_releases_on_page(url, params=None):
-	"Return a all releases from the given page and all following pages"
+	"""
+	Return a dict of all releases from the given page and all following pages,
+	keyed on discogs id to avoid duplication
+	"""
 
 	response = requests_with_caching.get(url, params=params, headers=DEFAULT_HEADERS)
 	result = json.loads(response.text)
@@ -136,18 +139,22 @@ def get_discography(name):
 	if not artist_id:
 		return empty_result
 
-	artist_info = find_artist_info(artist_id)
-	#print(json.dumps(artist_info, indent=2))
-
 	all_releases = find_releases(artist_id)
 
-	if 'aliases' in artist_info:
-		for alias in artist_info['aliases']:
-			all_releases.update(find_releases(alias['id']))
+	artist_info = find_artist_info(artist_id)
+	#print(json.dumps(artist_info, indent=2))
 
 	if 'groups' in artist_info:
 		for group in artist_info['groups']:
 			all_releases.update(find_releases(group['id']))
+
+	if 'aliases' in artist_info:
+		for alias in artist_info['aliases']:
+			all_releases.update(find_releases(alias['id']))
+			alias_info = find_artist_info(alias['id'])
+			if 'groups' in alias_info:
+				for group in alias_info['groups']:
+					all_releases.update(find_releases(group['id']))
 
 	#print(json.dumps(all_releases, indent=2))
 	#print(len(all_releases))
