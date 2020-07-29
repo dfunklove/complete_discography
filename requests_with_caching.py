@@ -5,6 +5,9 @@ import json
 requests_with_caching.py
 
 Cache HTTP requests in a text file in the local directory.  See "get" function for more info.
+Caching is relatively slow, disk intensive, and not thread safe.
+This is intended for development, to reduce repetetive API requests and improve execution time.
+When deploying to production, set DISABLE_CACHING to True.
 
 Adapted from <a href="https://fopp.umsi.education/books/published/fopp/index.html">Foundations of Python Programming</a>,
 an online course from UMSI, specifically chapter 24, "Internet APIs".
@@ -64,7 +67,6 @@ def get(baseurl, params=None, headers=None, private_keys_to_ignore=["key", "secr
     If not found, fetch data from the internet.
     """
 
-    print(f"params = {params}")
     if params == None:
         params = {}
     for k in params:
