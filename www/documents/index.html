@@ -18,10 +18,13 @@
       console.log("uri="+uri)
       let btnText = $("#submit").html()
       $("#submit").html("Loading...")
+      $("#disco-container").hide()
+      $("#loading").show()
       $("#disco").load(uri, function() {
         $("#submit").html(btnText)
+        $("#disco-container").show()
+        $("#loading").hide()
       })
-      $("#disco-container").show()
     }
   </script>
 </head>
@@ -43,6 +46,9 @@
         </div>
       </form>
       <button class="btn btn-primary btn-lg" id="submit" onclick="formSubmit(event)">Go!</button>
+    </div>
+    <div id="loading" class="hidden spacey">
+      <img src="images/spinner.svg"/>
     </div>
     <div id="disco-container" class="hidden spacey big-bottom">
       <div class="center-me jumbotron-background">
