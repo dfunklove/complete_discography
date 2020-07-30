@@ -39,9 +39,8 @@ def find_artist_id(name):
 	response = requests_with_caching.get(url, params=params, headers=DEFAULT_HEADERS)
 	result = json.loads(response.text)
 	
-	#TODO remove print
-	print(response.url)
-	print(json.dumps(result, indent=2))
+	#print(response.url)
+	#print(json.dumps(result, indent=2))
 
 	for a in result['results']:
 		if 'title' in a and name.upper() == a['title'].upper():
@@ -79,9 +78,8 @@ def find_releases_on_page(url, params=None):
 	response = requests_with_caching.get(url, params=params, headers=DEFAULT_HEADERS)
 	result = json.loads(response.text)
 	
-	#TODO remove print
-	print(response.url)
-	print(json.dumps(result, indent=2))
+	#print(response.url)
+	#print(json.dumps(result, indent=2))
 
 	# put results in a dict to guarantee uniqueness
 	retval = {}
@@ -107,12 +105,18 @@ def disco_table(releases):
 
 	fields = ['artist', 'title', 'label', 'year']
 	output = "<table><tr>"
+	output += "<th></th>" # thumbnail column
 	for f in fields:
 		pretty = f.capitalize()
 		output += f"<th>{pretty}</th>"
 	output += "</tr>\n"
 	for r in releases:
 		output += "<tr>"
+		if 'thumb' in r:
+			output += f"<td><img src='{r['thumb']}'/></td>"
+		else:
+			output += f"<td></td>"
+
 		for f in fields:
 			if f in r:
 				output += f"<td>{r[f]}</td>"
