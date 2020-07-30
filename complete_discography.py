@@ -25,7 +25,7 @@ API_SECRET = 'VLSajjYuNLcuDKeRQzmrwwhnKlRYBLsn'
 AUTH_PARAMS = { 'key': API_KEY, 'secret': API_SECRET }
 DEFAULT_HEADERS = { 'user-agent': 'dfunklove_Complete_Discography/0.1 +https://dlove.it' }
 
-def find_artist_id(name):
+def find_artists(name):
 	"Query the discogs api to get an artist id for the given name"
 
 	if not name:
@@ -37,14 +37,16 @@ def find_artist_id(name):
 	params['q'] = name
 	params['type'] = 'artist'
 	response = requests_with_caching.get(url, params=params, headers=DEFAULT_HEADERS)
-	result = json.loads(response.text)
-	
-	#print(response.url)
-	#print(json.dumps(result, indent=2))
+	return json.loads(response.text)['results']
 
-	for a in result['results']:
-		if 'title' in a and name.upper() == a['title'].upper():
-			return a['id']
+
+def artist_html(artist_info):
+	thumb = artist_info['thumb']
+	id = artist_info['id']
+	name = artist_info['title']
+	if not thumb:
+		thumb = "images/artist_empty.svg"
+	return f'<div class="artist"><a href="#" class="artist_thumb artist_link" artist_id="{id}" artist_name="{name}"><img src="{thumb}"/></a><a href="#" class="artist_name artist_link" artist_id="{id}" artist_name="{name}">{name}</a></div>'
 
 
 def find_artist_info(artist_id):
@@ -128,18 +130,32 @@ def disco_table(releases):
 	return output
 
 
-def get_discography(name):
-	"""
-	Assemble a complete discography for an artist based on "Aliases" and "In Groups" data from Discogs.com
+"""
+PUBLIC FUNCTIONS
+"""
 
-	Input: artist name
+
+def get_artists(name):
+	"""
+	Return a string of html representing a list of artists which match the given name
+	"""
+	artist_list = find_artists(name)
+	result = ""
+	for a in artist_list:
+		result += artist_html(a)
+	return result
+
+
+def get_discography(artist_id):
+	"""
+	Assemble a complete html discography for an artist based on "Aliases" and "In Groups" data from Discogs.com
+
+	Input: artist id from Discogs.com
 	Output: html table of releases by artist
 	"""
 
 	empty_result = "No results found."
 	
-	artist_id = find_artist_id(name)
-	#print(f"artist_id = {artist_id}")
 	if not artist_id:
 		return empty_result
 
