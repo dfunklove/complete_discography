@@ -1,5 +1,21 @@
-.hidden {
-  display: none
+.artist {
+  position:relative;
+  float:left;
+  margin: 7px 9px 14px 7px;
+  width: 150px;
+  height: 205px;
+}
+
+.artist * {
+  display:block;
+}
+
+.big-bottom {
+  margin-bottom: 2rem;
+}
+
+.block {
+  display: block;
 }
 
 .center-contents {
@@ -10,34 +26,30 @@
   display: inline-block;
 }
 
-.text-cell {
-  text-align: left;
-}
-
-.number-cell {
-  text-align: right;
-}
-
-.block {
-  display: block;
-}
-
-.spacey {
-  padding: 2rem 1rem;
-}
-
-.little-spacey {
-  padding: 1rem 1rem;
-}
-
-.big-bottom {
-  margin-bottom: 2rem;
+.hidden {
+  display: none
 }
 
 .jumbotron-background {
   background-color: #073642;
 }
 
-.stats .td {
-  padding: 0.5rem 0.5rem;
+.limit-width {
+  width: 80%;
+}
+
+.little-spacey {
+  padding: 1rem 1rem;
+}
+
+.number-cell {
+  text-align: right;
+}
+
+.spacey {
+  padding: 2rem 1rem;
+}
+
+.text-cell {
+  text-align: left;
 }

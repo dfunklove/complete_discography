@@ -204,7 +204,7 @@ def get_discography(artist_id):
 
 	all_releases = sorted(all_releases.values(), key=lambda x: x['year'] if 'year' in x else 3000)
 
-	return stats(artist_info['name'], all_releases) + disco_table(all_releases)
+	return '<p id="stats-heading">Stats</p>' + stats(artist_info['name'], all_releases) + '<p id="releases-heading">Releases</p>' + disco_table(all_releases)
 
 #
 # Main Program

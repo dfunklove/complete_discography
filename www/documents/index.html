@@ -40,31 +40,16 @@
       $("#disco-container").hide()
       $("#loading").show()
       $("#disco").load(uri, function() {
-        $("#results_heading").html("Complete Discography for "+name)
-        $("#stats").addClass("center-me h3")
+        $("#results-heading").html("Complete Discography for "+name)
+        $("#stats").addClass("center-me big-bottom")
+        $("#stats-heading").addClass("h3 big-bottom")
+        $("#releases-heading").addClass("h3 big-bottom")
         $("#submit").html(btnText)
         $("#disco-container").show()
         $("#loading").hide()
       })
     }
   </script>
-  <style>
-    .limit-width {
-      width: 80%;
-    }
-
-    .artist {
-      position:relative;
-      float:left;
-      margin: 7px 9px 14px 7px;
-      width: 150px;
-      height: 205px;
-    }
-
-    .artist * {
-      display:block;
-    }
-  </style>
 </head>
 <body>
   <main class="center-contents">
@@ -91,7 +76,7 @@
     </div>
     <div id="disco-container" class="hidden spacey big-bottom">
       <div class="center-me center-contents jumbotron-background">
-        <h2 id="results_heading" class="text-success">Results</h2>
+        <h2 id="results-heading" class="text-success">Results</h2>
         <div id="disco" class="center-me little-spacey"></div>
       </div>
     </div>
