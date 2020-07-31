@@ -10,6 +10,14 @@
   display: inline-block;
 }
 
+.text-cell {
+  text-align: left;
+}
+
+.number-cell {
+  text-align: right;
+}
+
 .block {
   display: block;
 }
@@ -30,3 +38,6 @@
   background-color: #073642;
 }
 
+.stats .td {
+  padding: 0.5rem 0.5rem;
+}

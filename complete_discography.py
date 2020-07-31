@@ -24,6 +24,7 @@ API_KEY = 'EtNnhmPqmhSULCVJHRRx'
 API_SECRET = 'VLSajjYuNLcuDKeRQzmrwwhnKlRYBLsn'
 AUTH_PARAMS = { 'key': API_KEY, 'secret': API_SECRET }
 DEFAULT_HEADERS = { 'user-agent': 'dfunklove_Complete_Discography/0.1 +https://dlove.it' }
+DEBUG = True
 
 def find_artists(name):
 	"Query the discogs api to get an artist id for the given name"
@@ -80,8 +81,9 @@ def find_releases_on_page(url, params=None):
 	response = requests_with_caching.get(url, params=params, headers=DEFAULT_HEADERS)
 	result = json.loads(response.text)
 	
-	#print(response.url)
-	#print(json.dumps(result, indent=2))
+	if DEBUG:
+		print(response.url)
+		print(json.dumps(result, indent=2))
 
 	# put results in a dict to guarantee uniqueness
 	retval = {}
@@ -99,6 +101,25 @@ def find_releases_on_page(url, params=None):
 
 	return retval
 	
+
+def stats(artist_name, releases):
+	retval = f'<table id="stats" class="stats"><tr><th class="text-cell">Total</th><th class="number-cell">{len(releases)}</th>'
+
+	artist_counts = {}
+	for r in releases:
+		name = r['artist']
+		if name in artist_counts:
+			artist_counts[name] += 1
+		else:
+			artist_counts[name] = 1
+
+	retval += f'<tr><td class="text-cell">{artist_name}</td><td class="number-cell">{artist_counts.pop(artist_name, 0)}</td></tr>'
+
+	for a in sorted(artist_counts.keys()):
+		retval += f'<tr><td class="text-cell">{a}</td><td class="number-cell">{artist_counts[a]}</td></tr>'
+	retval += '</table>'
+	return retval
+
 
 def disco_table(releases):
 	"Accept release data from discogs api and put it in an html table"
@@ -162,7 +183,8 @@ def get_discography(artist_id):
 	all_releases = find_releases(artist_id)
 
 	artist_info = find_artist_info(artist_id)
-	#print(json.dumps(artist_info, indent=2))
+	if DEBUG:
+		print(json.dumps(artist_info, indent=2))
 
 	if 'groups' in artist_info:
 		for group in artist_info['groups']:
@@ -176,12 +198,13 @@ def get_discography(artist_id):
 				for group in alias_info['groups']:
 					all_releases.update(find_releases(group['id']))
 
-	#print(json.dumps(all_releases, indent=2))
-	#print(len(all_releases))
+	if DEBUG:
+		print(json.dumps(all_releases, indent=2))
+		print(len(all_releases))
 
 	all_releases = sorted(all_releases.values(), key=lambda x: x['year'] if 'year' in x else 3000)
 
-	return disco_table(all_releases)
+	return stats(artist_info['name'], all_releases) + disco_table(all_releases)
 
 #
 # Main Program

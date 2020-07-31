@@ -41,6 +41,7 @@
       $("#loading").show()
       $("#disco").load(uri, function() {
         $("#results_heading").html("Complete Discography for "+name)
+        $("#stats").addClass("center-me h3")
         $("#submit").html(btnText)
         $("#disco-container").show()
         $("#loading").hide()
@@ -89,7 +90,7 @@
       <div id="artist-list" class="center-me limit-width"></div>
     </div>
     <div id="disco-container" class="hidden spacey big-bottom">
-      <div class="center-me jumbotron-background">
+      <div class="center-me center-contents jumbotron-background">
         <h2 id="results_heading" class="text-success">Results</h2>
         <div id="disco" class="center-me little-spacey"></div>
       </div>
