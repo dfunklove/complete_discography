@@ -41,6 +41,8 @@ def find_group_links(soup):
 def find_album_rows(context, soup):
 	results = []
 	table = soup.find(id="artist")
+	if not table:
+		return
 	grab_next = False
 	for row in table.find_all('tr'):
 		if "Albums" in row.text:
@@ -53,8 +55,8 @@ def find_album_rows(context, soup):
 				results.append(row)
 			else:
 				break
-	if len(results) > 0:
-		context.start_background_task(context.emit, "release_rows", results, namespace="/discography")
+	if context and len(results) > 0:
+		context.publish_release_rows(results)
 	return results
 
 def find_url_for_artist(name):
@@ -88,6 +90,9 @@ def get_discography(context, name):
 			artist_page = requests_with_caching.get(BASE_URL + link)
 			soup = BeautifulSoup(artist_page.text, PARSER)
 			album_rows += find_album_rows(context, soup)
+
+	if len(album_rows) == 0:
+		context.publish_empty_result()
 
 	retval = "<table>"
 	for k in album_rows:
