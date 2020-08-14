@@ -17,9 +17,24 @@
     const SUBMIT_BTN_LOADING_TEXT = "Loading..."
     socket = io("http://localhost:5000/discography")
     socket.on("release_rows", function(data) {
-      console.log("release_rows = "+data)
-      init_disco()
+      console.log("release_rows")
+      init_disco(true)
       $("#disco").append(data)
+    })
+
+    socket.on("empty_result", function() {
+      console.log("empty_result")
+      init_disco(false)
+    })
+
+    $(function () {
+      $("#artist").on('input', function() {
+        if ($("#artist").val().length > 0 && $("#submit").prop('disabled')) {
+          $("#submit").prop('disabled', false)
+        } else if ($("#artist").val().length === 0) {
+          $("#submit").prop('disabled', true)
+        }
+      })
     })
 
     function get_artists(e) {
@@ -27,7 +42,8 @@
       let uri = encodeURI("/app/artists/"+$("#artist").val())
       console.log("uri="+uri)
       let btnText = $("#submit").html()
-      $("#submit").html("Loading...")
+      $("#submit").html(SUBMIT_BTN_LOADING_TEXT)
+      $("#submit").prop('disabled', true)
       $("#artist-container").hide()
       $("#disco-container").hide()
       $("#loading").show()
@@ -43,27 +59,34 @@
 
     function get_discography(e) {
       let name = $("#artist").val()
-      let uri = encodeURI("/app/discography/"+name)
-      console.log("uri="+uri)
       let btnText = $("#submit").html()
       $("#submit").html(SUBMIT_BTN_LOADING_TEXT)
+      $("#submit").prop('disabled', true)
       $("#artist-container").hide()
       $("#disco-container").hide()
+      $("#disco").empty()
       $("#loading").show()
-
+      console.log("socket emit get '"+name+"'")
       socket.emit("get", name)
-      //$("#disco").load(uri, init_disco)
     }
 
-    function init_disco() {
-      if ($("#submit").html() === SUBMIT_BTN_INIT_TEXT) {
+    /*
+     * with_results: boolean indicating if results were found
+    */
+    function init_disco(results_found) {
+      if ($("#submit").prop('disabled') == false) {
         return false
       }
-      $("#results-heading").html("Complete Discography for "+name)
+      if (results_found) {
+        $("#results-heading").html("Complete Discography for "+$("#artist").val())
+      } else {
+        $("#results-heading").html("No results found.")
+      }
       $("#stats").addClass("center-me big-bottom")
       $("#stats-heading").addClass("h3 big-bottom")
       $("#releases-heading").addClass("h3 big-bottom")
       $("#submit").html(SUBMIT_BTN_INIT_TEXT)
+      $("#submit").prop('disabled', false)
       $("#disco-container").show()
       $("#loading").hide()
     }
@@ -86,7 +109,7 @@
           <input class="form-control-lg center-contents" id="artist">
         </div>
       </form>
-      <button class="btn btn-primary btn-lg" id="submit" onclick="get_discography(event)">Go!</button>
+      <button class="btn btn-primary btn-lg" id="submit" disabled="true" onclick="get_discography(event)">Go!</button>
     </div>
     <div id="artist-container" class="hidden spacey">
       <h2>Please choose your artist.</h2>
