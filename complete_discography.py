@@ -38,7 +38,7 @@ def find_alias_links(soup):
 def find_group_links(soup):
 	return find_profile_links(soup, "In Groups")
 
-def find_album_rows(context, soup):
+def find_album_rows(soup, context=None):
 	results = []
 	table = soup.find(id="artist")
 	if not table:
@@ -75,7 +75,7 @@ def find_url_for_artist(name):
 	soup = BeautifulSoup(search_result.text, PARSER)
 	return soup.find(id="search_results").a.get("href")
 
-def get_discography(context, name):
+def get_discography(name, context=None):
 	artist_url = find_url_for_artist(name)
 	artist_page = requests_with_caching.get(BASE_URL + artist_url)
 	soup = BeautifulSoup(artist_page.text, PARSER)
@@ -87,18 +87,18 @@ def get_discography(context, name):
 	for link in group_links.values():
 		artist_page = requests_with_caching.get(BASE_URL + link)
 		soup = BeautifulSoup(artist_page.text, PARSER)
-		album_rows += find_album_rows(context, soup)
+		album_rows += find_album_rows(soup, context)
 
 	# Find releases each alias and any groups for that alias
 	for link in alias_links.values():
 		artist_page = requests_with_caching.get(BASE_URL + link)
 		soup = BeautifulSoup(artist_page.text, PARSER)
-		album_rows += find_album_rows(context, soup)
+		album_rows += find_album_rows(soup, context)
 		group_links = find_group_links(soup)
 		for link in group_links.values():
 			artist_page = requests_with_caching.get(BASE_URL + link)
 			soup = BeautifulSoup(artist_page.text, PARSER)
-			album_rows += find_album_rows(context, soup)
+			album_rows += find_album_rows(soup, context)
 
 	if len(album_rows) == 0:
 		context.publish_empty_result()

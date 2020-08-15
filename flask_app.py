@@ -12,7 +12,7 @@ socketio = SocketIO(app, cors_allowed_origins="*")
 
 class Discography(Namespace):
   def on_get(self, artist_name):
-    socketio.start_background_task(get_discography, self, artist_name)
+    socketio.start_background_task(get_discography, artist_name, self)
 
   # Callbacks used by get_discography
   def publish_release_rows(self, rows):
