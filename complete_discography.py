@@ -17,7 +17,7 @@ https://github.com/dfunklove
 """
 
 PARSER = 'lxml'
-BASE_URL = 'https://discogs.com'
+BASE_URL = 'https://discogs.com/'
 
 def find_profile_links(soup, search_string):
 	""" Find links in html based on the class and string content of a div """
@@ -49,9 +49,18 @@ def find_album_rows(context, soup):
 			grab_next = True
 		elif grab_next:
 			if 'card' in row.get('class'):
+				row['class'].remove('card')
+				for img in row.find_all('img'):
+					img['src'] = img.get('data-src')
+				for button in row.find_all('button'):
+					button.decompose()
+				for catno in row.find_all(class_='catno_first'):
+					catno.decompose()
+				for sell in row.find_all(class_='sell_this_version'):
+					sell.decompose()
 				row = row.prettify()
-				row = row.replace("href=\"", "href=\""+BASE_URL)
-				row = row.replace("href='", "href='"+BASE_URL)
+				row = row.replace("href=\"/", "href=\""+BASE_URL)
+				row = row.replace("href='/", "href='"+BASE_URL)
 				results.append(row)
 			else:
 				break
