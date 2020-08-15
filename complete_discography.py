@@ -81,9 +81,9 @@ def get_discography(name, context=None):
 	soup = BeautifulSoup(artist_page.text, PARSER)
 	alias_links = find_alias_links(soup)
 	group_links = find_group_links(soup)
+	album_rows = find_album_rows(soup, context)
 
 	# Find releases for groups
-	album_rows = []
 	for link in group_links.values():
 		artist_page = requests_with_caching.get(BASE_URL + link)
 		soup = BeautifulSoup(artist_page.text, PARSER)
