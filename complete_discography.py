@@ -18,7 +18,7 @@ https://github.com/dfunklove
 
 PARSER = 'lxml'
 BASE_URL = 'https://discogs.com/'
-EXCLUDED_COLUMNS = re.compile('catno|catno_first|sell_this_version|hide_mobile|hide-desktop|actions')
+EXCLUDED_COLUMNS = re.compile('catno|catno_first|country|sell_this_version|hide_mobile|hide-desktop|actions')
 
 def find_profile_links(soup, search_string):
 	""" Find links in html based on the class and string content of a div """
