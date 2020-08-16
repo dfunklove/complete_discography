@@ -18,6 +18,7 @@ https://github.com/dfunklove
 
 PARSER = 'lxml'
 BASE_URL = 'https://discogs.com/'
+EXCLUDED_COLUMNS = re.compile('catno|catno_first|sell_this_version|hide_mobile|hide-desktop|actions')
 
 def find_profile_links(soup, search_string):
 	""" Find links in html based on the class and string content of a div """
@@ -54,10 +55,8 @@ def find_album_rows(soup, context=None):
 					img['src'] = img.get('data-src')
 				for button in row.find_all('button'):
 					button.decompose()
-				for catno in row.find_all(class_='catno_first'):
-					catno.decompose()
-				for sell in row.find_all(class_='sell_this_version'):
-					sell.decompose()
+				for td in row.find_all(class_=EXCLUDED_COLUMNS):
+					td.decompose()
 				row = row.prettify()
 				row = row.replace("href=\"/", "href=\""+BASE_URL)
 				row = row.replace("href='/", "href='"+BASE_URL)
@@ -100,8 +99,7 @@ def get_discography(name, context=None):
 			soup = BeautifulSoup(artist_page.text, PARSER)
 			album_rows += find_album_rows(soup, context)
 
-	if len(album_rows) == 0:
-		context.publish_empty_result()
+	context.publish_complete()
 
 	retval = "<table>"
 	for k in album_rows:

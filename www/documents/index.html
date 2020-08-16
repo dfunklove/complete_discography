@@ -7,14 +7,17 @@
 
   <!-- Display the same in all browsers.  Must be first stylesheet. -->
   <link href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css" rel="stylesheet" type="text/css" />
-  <link href="style/lib/bootstrap.min.css" rel="stylesheet" type="text/css" />
-  <link href="style/style.css" rel="stylesheet" type="text/css" />
+  <link href="lib/bootswatch/css/bootswatch-solar.min.css" rel="stylesheet" type="text/css" />
+  <link href="lib/sortable-0.8.0/css/sortable-theme-bootstrap.css" rel="stylesheet" type="text/css" />
+  <link href="css/style.css" rel="stylesheet" type="text/css" />
 
   <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script> 
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
+  <script type="text/javascript" src="lib/sortable-0.8.0/js/sortable.js"></script> 
   <script>
     const SUBMIT_BTN_INIT_TEXT = "Go!"
     const SUBMIT_BTN_LOADING_TEXT = "Loading..."
+    var artist
     socket = io(window.location.protocol+"//"+window.location.hostname+":5000/discography")
     socket.on("release_rows", function(data) {
       console.log("release_rows")
@@ -22,43 +25,25 @@
       $("#disco").append(data)
     })
 
-    socket.on("empty_result", function() {
-      console.log("empty_result")
-      init_disco(false)
+    socket.on("complete", function() {
+      console.log("complete")
+      $("#loading").hide()
+      makeTableSortable(true)
+      init_disco(false) // cover the case of 0 rows
     })
 
     $(function () {
-      $("#artist").on('input', function() {
-        if ($("#artist").val().length > 0 && $("#submit").prop('disabled')) {
-          $("#submit").prop('disabled', false)
-        } else if ($("#artist").val().length === 0) {
-          $("#submit").prop('disabled', true)
-        }
-      })
+      $("#artist").on('input', correctButtonEnablement)
+      correctButtonEnablement()
     })
 
-    function get_artists(e) {
-      e.preventDefault()
-      let uri = encodeURI("/app/artists/"+$("#artist").val())
-      console.log("uri="+uri)
-      let btnText = $("#submit").html()
-      $("#submit").html(SUBMIT_BTN_LOADING_TEXT)
-      $("#submit").prop('disabled', true)
-      $("#artist-container").hide()
-      $("#disco-container").hide()
-      $("#loading").show()
-      $("#artist-list").load(uri, function() {
-        $(".artist_link").each(function() { 
-          $(this).click(function() { get_discography($(this).attr("artist_id"), $(this).attr("artist_name")) } ) 
-        })
-        $("#submit").html(btnText)
-        $("#artist-container").show()
-        $("#loading").hide()
-      })
+    function correctButtonEnablement() {
+      $("#submit").prop('disabled', $("#artist").val().length == 0)
     }
 
     function get_discography(e) {
-      let name = $("#artist").val()
+      e.preventDefault()
+      artist = $("#artist").val()
       let btnText = $("#submit").html()
       $("#submit").html(SUBMIT_BTN_LOADING_TEXT)
       $("#submit").prop('disabled', true)
@@ -66,29 +51,52 @@
       $("#disco-container").hide()
       $("#disco").empty()
       $("#loading").show()
-      console.log("socket emit get '"+name+"'")
-      socket.emit("get", name)
+      console.log("socket emit get '"+artist+"'")
+      socket.emit("get", artist)
+      return false;
     }
 
     /*
-     * with_results: boolean indicating if results were found
+     * Initialize the discography display area
+     *
+     * results_found: boolean indicating if results were found
     */
     function init_disco(results_found) {
       if ($("#submit").prop('disabled') == false) {
         return false
       }
       if (results_found) {
-        $("#results-heading").html("Complete Discography for "+$("#artist").val())
+        $("#results-heading").html("Complete Discography for "+artist)
+        makeTableSortable(false)
+        $("#disco-table").show()
       } else {
         $("#results-heading").html("No results found.")
+        $("#disco-table").hide()
       }
-      $("#stats").addClass("center-me big-bottom")
-      $("#stats-heading").addClass("h3 big-bottom")
-      $("#releases-heading").addClass("h3 big-bottom")
       $("#submit").html(SUBMIT_BTN_INIT_TEXT)
       $("#submit").prop('disabled', false)
       $("#disco-container").show()
-      $("#loading").hide()
+    }
+
+    function makeTableSortable(enable=false) {
+      if (enable) {
+        $("#disco-table").removeAttr("data-sortable-initialized")
+        Sortable.init()
+      } else { 
+        // remove event listeners!
+        $("#disco-head").html($("#disco-head").html())
+
+        // hide up/down indicator
+        $("th:after").css("content","none")
+
+        // remove attributes from th
+        let headers = document.getElementsByTagName("th")
+        for (let i=0; i < headers.length; i++) {
+          let elem = headers[i]
+          while(elem.attributes.length > 0)
+            elem.removeAttribute(elem.attributes[0].name);
+        }
+      }
     }
   </script>
 </head>
@@ -115,14 +123,20 @@
       <h2>Please choose your artist.</h2>
       <div id="artist-list" class="center-me limit-width"></div>
     </div>
-    <div id="disco-container" class="hidden spacey big-bottom">
-      <div class="center-me center-contents jumbotron-background">
+    <div id="disco-container" class="hidden spacey jumbotron-background">
+      <div class="center-me center-contents">
         <h2 id="results-heading" class="text-success">Results</h2>
-        <table id="disco" class="center-me little-spacey"></table>
+        <table id="disco-table" class="center-me little-spacey sortable" data-sortable>
+          <thead id="disco-head">
+            <tr><th>&nbsp;</th><th>Artist</th><th>Title</th><th>Label</th><th>Country</th><th>Year</th></tr>
+          </thead>
+          <tbody id="disco"></tbody>
+        </table>
       </div>
     </div>
-    <div id="loading" class="hidden spacey">
+    <div id="loading" class="hidden">
       <img src="images/spinner.svg"/>
     </div>
+    <div class="big-bottom"></div>
   </main>
 </html>

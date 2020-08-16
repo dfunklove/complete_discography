@@ -1,5 +1,6 @@
 import requests
 import json
+from time import ctime
 
 """
 requests_with_caching.py
@@ -18,7 +19,7 @@ Updated by Daniel Lovette for compatibility with Python 3.6.9
 
 PERMANENT_CACHE_FNAME = "/tmp/permanent_cache.txt"
 TEMP_CACHE_FNAME = "/tmp/this_page_cache.txt"
-DEBUG = False
+DEBUG = True
 DISABLE_CACHING = True
 
 class Response:
@@ -75,8 +76,11 @@ def get(baseurl, params=None, headers=None, private_keys_to_ignore=["key", "secr
         headers = {}
     cache_key = make_cache_key(baseurl, params, private_keys_to_ignore)
 
+    full_url = requests.Request("GET", baseurl, params=params, headers=headers).prepare().url
+    if DEBUG:
+        print(ctime() + ": fetching " + full_url)
+
     if not DISABLE_CACHING:
-        full_url = requests.Request("GET", baseurl, params=params, headers=headers).prepare().url
 
         # Load the permanent and page-specific caches from files
         permanent_cache = _read_from_file(permanent_cache_file)

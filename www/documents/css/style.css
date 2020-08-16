@@ -41,3 +41,8 @@
 .text-cell {
   text-align: left;
 }
+
+table[data-sortable] th:after {
+  display:inline;
+  float:none
+}

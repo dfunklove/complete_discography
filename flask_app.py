@@ -18,10 +18,12 @@ class Discography(Namespace):
   def publish_release_rows(self, rows):
     self.emit("release_rows", rows)
 
-  def publish_empty_result(self):
-    self.emit("empty_result")
+  def publish_complete(self):
+    self.emit("complete")
 
 socketio.on_namespace(Discography('/discography'))
   
 if __name__ == '__main__':   
-    socketio.run(app) 
+  socketio.run(app)
+  # Uncomment to run with SSL
+  #socketio.run(app, certfile="fullchain.pem", keyfile="privkey.pem") 
