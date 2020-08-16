@@ -18,7 +18,7 @@
     const SUBMIT_BTN_INIT_TEXT = "Go!"
     const SUBMIT_BTN_LOADING_TEXT = "Loading..."
     var artist
-    socket = io(window.location.protocol+"//"+window.location.hostname+":5000/discography")
+    socket = io("wss://"+window.location.hostname+"/discography", options={"transports":["websocket"]})
     socket.on("release_rows", function(data) {
       console.log("release_rows")
       init_disco(true)
