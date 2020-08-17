@@ -18,6 +18,7 @@ https://github.com/dfunklove
 
 PARSER = 'lxml'
 BASE_URL = 'https://discogs.com/'
+DEFAULT_PARAMS = { 'limit': '500' }
 EXCLUDED_COLUMNS = re.compile('catno|catno_first|country|sell_this_version|hide_mobile|hide-desktop|actions')
 
 def find_profile_links(soup, search_string):
@@ -76,7 +77,7 @@ def find_url_for_artist(name):
 
 def get_discography(name, context=None):
 	artist_url = find_url_for_artist(name)
-	artist_page = requests_with_caching.get(BASE_URL + artist_url)
+	artist_page = requests_with_caching.get(BASE_URL + artist_url, DEFAULT_PARAMS)
 	soup = BeautifulSoup(artist_page.text, PARSER)
 	alias_links = find_alias_links(soup)
 	group_links = find_group_links(soup)
@@ -84,18 +85,18 @@ def get_discography(name, context=None):
 
 	# Find releases for groups
 	for link in group_links.values():
-		artist_page = requests_with_caching.get(BASE_URL + link)
+		artist_page = requests_with_caching.get(BASE_URL + link, DEFAULT_PARAMS)
 		soup = BeautifulSoup(artist_page.text, PARSER)
 		album_rows += find_album_rows(soup, context)
 
 	# Find releases each alias and any groups for that alias
 	for link in alias_links.values():
-		artist_page = requests_with_caching.get(BASE_URL + link)
+		artist_page = requests_with_caching.get(BASE_URL + link, DEFAULT_PARAMS)
 		soup = BeautifulSoup(artist_page.text, PARSER)
 		album_rows += find_album_rows(soup, context)
 		group_links = find_group_links(soup)
 		for link in group_links.values():
-			artist_page = requests_with_caching.get(BASE_URL + link)
+			artist_page = requests_with_caching.get(BASE_URL + link, DEFAULT_PARAMS)
 			soup = BeautifulSoup(artist_page.text, PARSER)
 			album_rows += find_album_rows(soup, context)
 
