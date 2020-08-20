@@ -39,15 +39,17 @@ table[data-sortable] th:after {
   margin-left: 10px;
   float: right;
 }
-/* line 43, ../sass/_sortable.sass */
-table[data-sortable] th.sorting-desc::after {
+/* line 40, ../sass/_sortable.sass */
+table[data-sortable] th[data-sorted="true"]:after {
   visibility: visible;
+}
+/* line 43, ../sass/_sortable.sass */
+table[data-sortable] th[data-sorted-direction="descending"]:after {
   border-top-color: inherit;
   margin-top: 8px;
 }
 /* line 47, ../sass/_sortable.sass */
-table[data-sortable] th.sorting-asc::after {
-  visibility: visible;
+table[data-sortable] th[data-sorted-direction="ascending"]:after {
   border-bottom-color: inherit;
   margin-top: 3px;
 }
