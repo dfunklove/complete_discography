@@ -24,6 +24,4 @@ class Discography(Namespace):
 socketio.on_namespace(Discography('/discography'))
   
 if __name__ == '__main__':   
-  socketio.run(app)
-  # Uncomment to run with SSL
-  #socketio.run(app, certfile="fullchain.pem", keyfile="privkey.pem") 
+  socketio.run(app, certfile="fullchain.pem", keyfile="privkey.pem")
