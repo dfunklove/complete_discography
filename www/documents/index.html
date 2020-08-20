@@ -13,7 +13,7 @@
 
   <script type="text/javascript" src="https://code.jquery.com/jquery-3.5.1.min.js"></script> 
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/socket.io-client@2/dist/socket.io.js"></script>
-  <script type="text/javascript" src="lib/sortable-0.8.0/js/sortable.js"></script> 
+  <script type="text/javascript" src="lib/stupidtable/js/stupidtable.js"></script> 
   <script>
     const SUBMIT_BTN_INIT_TEXT = "Go!"
     const SUBMIT_BTN_LOADING_TEXT = "Loading..."
@@ -23,18 +23,19 @@
       console.log("release_rows")
       init_disco(true)
       $("#disco").append(data)
+      resort()
     })
 
     socket.on("complete", function() {
       console.log("complete")
       $("#loading").hide()
-      makeTableSortable(true)
       init_disco(false) // cover the case of 0 rows
     })
 
     $(function () {
       $("#artist").on('input', correctButtonEnablement)
       correctButtonEnablement()
+      $("#disco-table").stupidtable()
     })
 
     function correctButtonEnablement() {
@@ -67,7 +68,6 @@
       }
       if (results_found) {
         $("#results-heading").html("Complete Discography for "+artist)
-        makeTableSortable(false)
         $("#disco-table").show()
       } else {
         $("#results-heading").html("No results found.")
@@ -78,26 +78,18 @@
       $("#disco-container").show()
     }
 
-    function makeTableSortable(enable=false) {
-      if (enable) {
-        $("#disco-table").removeAttr("data-sortable-initialized")
-        Sortable.init()
-      } else { 
-        // remove event listeners!
-        $("#disco-head").html($("#disco-head").html())
-
-        // hide up/down indicator
-        $("th:after").css("content","none")
-
-        // remove attributes from th
-        let headers = document.getElementsByTagName("th")
-        for (let i=0; i < headers.length; i++) {
-          let elem = headers[i]
-          while(elem.attributes.length > 0)
-            elem.removeAttribute(elem.attributes[0].name);
+    /*
+     * Force Sortable library to sort the table again by the selected column
+     */
+    function resort() {
+      $("#disco-head tr").children().each(function () {
+        if ($(this).hasClass("sorting-asc")) {
+          $(this).stupidsort("asc");
+        } else if ($(this).hasClass("sorting-desc")) {
+          $(this).stupidsort("desc");
         }
-      }
-    }
+      })
+    }  
   </script>
 </head>
 <body>
@@ -128,7 +120,13 @@
         <h2 id="results-heading" class="text-success">Results</h2>
         <table id="disco-table" class="center-me little-spacey sortable" data-sortable>
           <thead id="disco-head">
-            <tr><th>&nbsp;</th><th>Artist</th><th>Title</th><th>Label</th><th>Year</th></tr>
+            <tr>
+              <th>&nbsp;</th>
+              <th data-sort="string-ins">Artist</th>
+              <th data-sort="string-ins">Title</th>
+              <th data-sort="string-ins">Label</th>
+              <th data-sort="int">Year</th>
+            </tr>
           </thead>
           <tbody id="disco"></tbody>
         </table>
