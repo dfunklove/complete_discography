@@ -100,7 +100,8 @@ def get_discography(name, context=None):
 			soup = BeautifulSoup(artist_page.text, PARSER)
 			album_rows += find_album_rows(soup, context)
 
-	context.publish_complete()
+	if context:
+		context.publish_complete()
 
 	retval = "<table>"
 	for k in album_rows:
