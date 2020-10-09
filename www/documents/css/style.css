@@ -44,6 +44,10 @@
   text-align: left;
 }
 
+input[type="submit"] {
+  margin-top:1rem;
+}
+
 table[data-sortable] th:after {
   display:inline;
   float:none
