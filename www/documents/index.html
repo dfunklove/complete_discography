@@ -1,13 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width">
-  <title>Complete Discography | dlove.it</title>
-
-  <!-- Display the same in all browsers.  Must be first stylesheet. -->
-  <link href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.css" rel="stylesheet" type="text/css" />
-  <link href="lib/bootswatch/css/bootswatch-solar.min.css" rel="stylesheet" type="text/css" />
+---
+layout: default
+title: Complete Discography
+---
   <link href="lib/sortable-0.8.0/css/sortable-theme-bootstrap.css" rel="stylesheet" type="text/css" />
   <link href="css/style.css" rel="stylesheet" type="text/css" />
 
@@ -94,17 +88,13 @@
       }
     }
   </script>
-</head>
-<body>
-  <main class="center-contents">
-    <div class="spacey">
-      <h1 class="text-primary">Complete Discography</h1>
-      <div class="little-spacey">
-        <p>If you follow an artist who performs in several different bands, this tool is for you. 
-          Enter their name to get a list of every album they've released under all of their various bands and aliases.</p>
-        <p>This app uses Python and Flask to retrieve data from <a href="https://discogs.com">Discogs.com</a>.
-          Check out the source code on <a href="https://github.com/dfunklove/complete-discography">GitHub</a>.</p>
-      </div>
+
+  <div class="center-contents">
+    <div class="big-bottom">
+      <p>If you follow an artist who performs in several different bands, this tool is for you. 
+        Enter their name to get a list of every album they've released under all of their various bands and aliases.</p>
+      <p>This app uses Python and Flask to retrieve data from <a href="https://discogs.com">Discogs.com</a>.
+        Check out the source code on <a href="https://github.com/dfunklove/complete-discography">GitHub</a>.</p>
       <form class="bs-component" onsubmit="get_discography(event)">
         <div class="form-group">
           <label for="artist" class="col-form-label-lg">Artist Name</label><br>
@@ -132,5 +122,4 @@
       <img src="images/spinner.svg"/>
     </div>
     <div class="big-bottom"></div>
-  </main>
-</html>
+  </div>
