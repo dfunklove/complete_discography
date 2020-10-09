@@ -18,9 +18,11 @@
   display: none
 }
 
+/* looks ugly on mobile
 .jumbotron-background {
   background-color: #f5f5f5;
 }
+*/
 
 .limit-width {
   width: 80%;

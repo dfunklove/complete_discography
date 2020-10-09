@@ -98,10 +98,10 @@ title: Complete Discography
       <form class="bs-component" onsubmit="get_discography(event)">
         <div class="form-group">
           <label for="artist" class="col-form-label-lg">Artist Name</label><br>
-          <input class="form-control-lg center-contents" id="artist">
+          <input type="text" class="form-control-lg center-contents" id="artist"><br>
+          <input type="submit" class="btn btn-primary btn-lg" id="submit" disabled="true" value="GO">
         </div>
       </form>
-      <button class="btn btn-primary btn-lg" id="submit" disabled="true" onclick="get_discography(event)">Go!</button>
     </div>
     <div id="artist-container" class="hidden spacey">
       <h2>Please choose your artist.</h2>
