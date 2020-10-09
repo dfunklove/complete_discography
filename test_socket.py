@@ -17,6 +17,7 @@ class MyCustomNamespace(socketio.ClientNamespace):
     def on_complete(self):
         print('complete')
 
-sio = socketio.Client(logger=True, ssl_verify=False)
-sio.register_namespace(MyCustomNamespace('/discography'))
-sio.connect("wss://localhost:5000", namespaces=['/discography'])
+if __name__ == "__main__":
+    sio = socketio.Client(logger=True, ssl_verify=False)
+    sio.register_namespace(MyCustomNamespace('/discography'))
+    sio.connect("wss://localhost:5000", namespaces=['/discography'])
