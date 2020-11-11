@@ -92,17 +92,15 @@ hide_sidebar: true
   </script>
 
   <div class="center-contents">
-    <div class="big-bottom">
+    <div class="center-flex center-contents big-bottom">
       <p>If you follow an artist who performs in several different bands, this tool is for you. 
         Enter their name to get a list of every album they've released under all of their various bands and aliases.</p>
       <p>This app uses Python and Flask to retrieve data from <a href="https://discogs.com">Discogs.com</a>.
         Check out the source code on <a href="https://github.com/dfunklove/complete-discography">GitHub</a>.</p>
-      <form class="bs-component" onsubmit="get_discography(event)">
-        <div class="form-group">
-          <label for="artist" class="col-form-label-lg">Artist Name</label><br>
-          <input type="text" class="form-control-lg center-contents" id="artist"><br>
-          <input type="submit" class="btn btn-primary btn-lg" id="submit" disabled="true" value="GO">
-        </div>
+      <form class="center-contents" onsubmit="get_discography(event)">
+        <label for="artist">Artist Name</label><br>
+        <input type="text" class="center-contents" id="artist" size="45"><br>
+        <input type="submit" class="btn btn-primary btn-lg" id="submit" disabled="true" value="GO">
       </form>
     </div>
     <div id="artist-container" class="hidden spacey">
