@@ -1,16 +1,18 @@
 import sys
 import re
-import requests_with_caching
+from complete_discography import requests_with_caching
 from bs4 import BeautifulSoup
 
 """
 complete_discography.py
 
-Assemble a complete HTML discography for an artist based on "Aliases" and "In Groups" data from Discogs.com.
+Assemble a complete HTML discography for an artist based on "Aliases" and 
+"In Groups" data from Discogs.com.
 
 Input: Artist name
 
-Output: HTML page containing a table of all albums by all artists for which the given artist is an alias or a group member.
+Output: HTML page containing a table of all albums by all artists for which the 
+given artist is an alias or a group member.
 
 Written by Daniel Lovette
 https://github.com/dfunklove
@@ -22,7 +24,13 @@ DEFAULT_PARAMS = { 'limit': '500' }
 EXCLUDED_COLUMNS = re.compile('catno|catno_first|country|sell_this_version|hide_mobile|hide-desktop|actions')
 
 def find_profile_links(soup, search_string):
-	""" Find links in html based on the class and string content of a div """
+	"""
+	Find links in html based on the class and string content of a div
+
+	Required Parameters:
+	soup: a BeautifulSoup object
+	search_string: the type of link to search for; must match html exactly
+	"""
 
 	profile_links = {}
 	div_prefix = soup.find('div', class_='head', string=re.compile(search_string))
@@ -41,6 +49,17 @@ def find_group_links(soup):
 	return find_profile_links(soup, "In Groups")
 
 def find_album_rows(soup, context=None):
+	"""
+	In the given soup, find the table rows which contain album information.
+	Pass the results to the context before returning them.
+
+	Required Parameters:
+	soup: a BeautifulSoup object
+
+	Optional Parameters:
+	context: an object which has the methods publish_release_rows and publish_complete
+	"""
+
 	results = []
 	table = soup.find(id="artist")
 	if not table:
@@ -76,6 +95,19 @@ def find_url_for_artist(name):
 	return soup.find(id="search_results").a.get("href")
 
 def get_discography(name, context=None):
+	"""
+	Query discogs database to get all albums on which the given artist,  
+	specified by "name", has appeared.
+
+	Pass the results, as html table rows, to the context before returning them.
+
+	Required Parameters:
+	name: the name of the artist to search for
+
+	Optional Parameters:
+	context: an object which has the methods publish_release_rows and publish_complete
+	"""
+
 	artist_url = find_url_for_artist(name)
 	artist_page = requests_with_caching.get(BASE_URL + artist_url, DEFAULT_PARAMS)
 	soup = BeautifulSoup(artist_page.text, PARSER)
@@ -108,13 +140,3 @@ def get_discography(name, context=None):
 		retval += k
 	retval += "</table>"
 	return retval
-
-#
-# Main Program
-#
-if __name__ == "__main__":
-	if (len(sys.argv) < 2):
-		print("usage: python "+sys.argv[0]+" [artist name] > outfile.html")
-		exit()
-
-	print(get_discography(None, sys.argv[1]))
