@@ -14,5 +14,5 @@ The server runs securely over wss and therefore requires a certificate file and 
   parser.add_argument('-p', '--port', default=5000, type=int)
   args = parser.parse_args()
   
-  print("Starting Complete Discography Server")
+  print(f"Starting Complete Discography Server on port {args.port}")
   flask_app.main(args.certfile, args.keyfile, args.port)
