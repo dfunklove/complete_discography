@@ -1,6 +1,6 @@
 import socketio
 
-# Simple class to test the socket
+# A simple client to test the websocket server.
 
 class MyCustomNamespace(socketio.ClientNamespace):
     def on_connect(self):
