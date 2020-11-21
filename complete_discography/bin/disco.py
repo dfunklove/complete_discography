@@ -15,4 +15,4 @@ if (len(sys.argv) < 2):
     print(usage.format(__file__))
     exit()
 
-print(get_discography(sys.argv[1]))
+print(complete_discography.get_discography(sys.argv[1]))
