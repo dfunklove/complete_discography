@@ -73,6 +73,19 @@ function makeTableSortable(enable=false) {
 }
 
 $(function () {
+  // focus on the input field for easy access...
+  var input = document.getElementById('artist');
+  input.focus();
+  // ...but if someone wishes to go back in their history, let them!
+  document.onkeydown = function(e) {
+    if (!e) {
+      var e = window.event;
+    }
+    if (e.key === "Backspace" && !input.value) {
+      history.back();
+    }
+  };
+
   $("#artist").on('input', correctButtonEnablement)
   correctButtonEnablement()
 })
