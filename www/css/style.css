@@ -53,11 +53,11 @@
   text-align: left;
 }
 
-input[type="text"] {
+form input[type="text"] {
   font-size: 1.2em;
 }
 
-input[type="submit"] {
+form input[type="submit"] {
   margin-top:1em;
   font-size:0.9em;
 }
