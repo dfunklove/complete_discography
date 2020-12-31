@@ -2,6 +2,10 @@
   font-family: sans-serif;
 }
 
+.artist_in_title {
+  display: none;
+}
+
 .big-bottom {
   margin-bottom: 2em;
 }
