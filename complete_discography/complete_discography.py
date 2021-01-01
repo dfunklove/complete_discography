@@ -75,6 +75,9 @@ def find_album_rows(soup, context=None):
 					img['src'] = img.get('data-src')
 				for button in row.find_all('button'):
 					button.decompose()
+				for a in row.find_all('a'):
+					a['target'] = '_blank'
+					a['rel'] = 'noreferrer noopener'
 				for td in row.find_all(class_=EXCLUDED_COLUMNS):
 					td.decompose()
 				row = row.prettify()
