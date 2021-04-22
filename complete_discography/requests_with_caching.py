@@ -74,6 +74,9 @@ def get(baseurl, params=None, headers=None, private_keys_to_ignore=["key", "secr
         params[k] = str(params[k])
     if headers == None:
         headers = {}
+    if "user-agent" not in headers: # avoid captcha
+        headers["user-agent"] = "Lynx/2.9.0dev.5 libwww-FM/2.14 SSL-MM/1.4.1 GNUTLS/3.6.13"
+
     cache_key = make_cache_key(baseurl, params, private_keys_to_ignore)
 
     full_url = requests.Request("GET", baseurl, params=params, headers=headers).prepare().url
