@@ -111,35 +111,41 @@ def get_discography(name, context=None):
 	context: an object which has the methods publish_release_rows and publish_complete
 	"""
 
-	artist_url = find_url_for_artist(name)
-	artist_page = requests_with_caching.get(BASE_URL + artist_url, DEFAULT_PARAMS)
-	soup = BeautifulSoup(artist_page.text, PARSER)
-	alias_links = find_alias_links(soup)
-	group_links = find_group_links(soup)
-	album_rows = find_album_rows(soup, context)
-
-	# Find releases for groups
-	for link in group_links.values():
-		artist_page = requests_with_caching.get(BASE_URL + link, DEFAULT_PARAMS)
+	try:
+		artist_url = find_url_for_artist(name)
+		artist_page = requests_with_caching.get(BASE_URL + artist_url, DEFAULT_PARAMS)
 		soup = BeautifulSoup(artist_page.text, PARSER)
-		album_rows += find_album_rows(soup, context)
-
-	# Find releases each alias and any groups for that alias
-	for link in alias_links.values():
-		artist_page = requests_with_caching.get(BASE_URL + link, DEFAULT_PARAMS)
-		soup = BeautifulSoup(artist_page.text, PARSER)
-		album_rows += find_album_rows(soup, context)
+		alias_links = find_alias_links(soup)
 		group_links = find_group_links(soup)
+		album_rows = find_album_rows(soup, context)
+
+		# Find releases for groups
 		for link in group_links.values():
 			artist_page = requests_with_caching.get(BASE_URL + link, DEFAULT_PARAMS)
 			soup = BeautifulSoup(artist_page.text, PARSER)
 			album_rows += find_album_rows(soup, context)
 
-	if context:
-		context.publish_complete()
+		# Find releases each alias and any groups for that alias
+		for link in alias_links.values():
+			artist_page = requests_with_caching.get(BASE_URL + link, DEFAULT_PARAMS)
+			soup = BeautifulSoup(artist_page.text, PARSER)
+			album_rows += find_album_rows(soup, context)
+			group_links = find_group_links(soup)
+			for link in group_links.values():
+				artist_page = requests_with_caching.get(BASE_URL + link, DEFAULT_PARAMS)
+				soup = BeautifulSoup(artist_page.text, PARSER)
+				album_rows += find_album_rows(soup, context)
 
-	retval = "<table>"
-	for k in album_rows:
-		retval += k
-	retval += "</table>"
-	return retval
+		if context:
+			context.publish_complete()
+
+		retval = "<table>"
+		for k in album_rows:
+			retval += k
+		retval += "</table>"
+		return retval
+
+	except:
+		if context:
+			context.publish_error("Invalid response from music database")
+		return None

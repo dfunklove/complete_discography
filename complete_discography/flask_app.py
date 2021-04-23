@@ -35,6 +35,10 @@ class Discography(Namespace):
   def publish_complete(self):
     self.emit("complete")
 
+  def publish_error(self, error):
+    print("publish_error")
+    self.emit("error", error)
+
 socketio.on_namespace(Discography('/discography'))
   
 def main(certfile=None, keyfile=None, port=5000):

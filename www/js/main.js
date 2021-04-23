@@ -15,6 +15,18 @@ socket.on("complete", function() {
   init_disco(false) // cover the case of 0 rows
 })
 
+socket.on("error", function(data) {
+  data = "Error: "+data
+  console.log("error")
+  $("#loading").hide()
+  if (disco_initialized()) {
+    var column_count = $("#disco tr").length
+    $("#disco").append("<tr><td colspan='"+column_count+"'><h2>"+data+"</h2></td></tr>")
+  } else {
+    init_disco(false, data) // cover the case of 0 rows
+  }
+})
+
 function correctButtonEnablement() {
   $("#submit").prop('disabled', $("#artist").val().length == 0)
 }
@@ -39,8 +51,8 @@ function get_discography(e) {
  *
  * results_found: boolean indicating if results were found
 */
-function init_disco(results_found) {
-  if ($("#submit").prop('disabled') == false) {
+function init_disco(results_found, error_message) {
+  if (disco_initialized()) {
     return false
   }
   if (results_found) {
@@ -48,12 +60,20 @@ function init_disco(results_found) {
     makeTableSortable(false)
     $("#disco-table").show()
   } else {
-    $("#results-heading").html("No results found.")
+    if (error_message) {
+      $("#results-heading").html(error_message)
+    } else {
+      $("#results-heading").html("No results found.")
+    }
     $("#disco-table").hide()
   }
   $("#submit").html(SUBMIT_BTN_INIT_TEXT)
   $("#submit").prop('disabled', false)
   $("#disco-container").show()
+}
+
+function disco_initialized() {
+  return $("#submit").prop('disabled') == false
 }
 
 function makeTableSortable(enable=false) {
