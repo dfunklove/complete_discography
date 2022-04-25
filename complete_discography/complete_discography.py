@@ -1,5 +1,5 @@
-import sys
 import re
+import logging
 from complete_discography import requests_with_caching
 from bs4 import BeautifulSoup
 
@@ -138,6 +138,8 @@ def get_discography(name, context=None):
 
 		if context:
 			context.publish_complete()
+
+		logging.getLogger(__name__).info("Fetch complete")
 
 		retval = "<table>"
 		for k in album_rows:

@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import argparse
+import logging
 from complete_discography import flask_app
 
 if __name__ == '__main__':
@@ -14,5 +15,6 @@ The server runs securely over wss and therefore requires a certificate file and 
   parser.add_argument('-p', '--port', default=5000, type=int)
   args = parser.parse_args()
   
-  print(f"Starting Complete Discography Server on port {args.port}")
+  logging.basicConfig(filename='disco_server.log', level=logging.INFO, format='[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s')
+  logger = logging.getLogger(__name__).info(f"Starting Complete Discography Server on port {args.port}")
   flask_app.main(args.certfile, args.keyfile, args.port)

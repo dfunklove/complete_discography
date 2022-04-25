@@ -36,7 +36,6 @@ class Discography(Namespace):
     self.emit("complete")
 
   def publish_error(self, error):
-    print("publish_error")
     self.emit("error", error)
 
 socketio.on_namespace(Discography('/discography'))

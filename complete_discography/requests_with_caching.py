@@ -1,5 +1,6 @@
 import requests
 import json
+import logging
 from time import ctime
 
 """
@@ -19,7 +20,6 @@ Updated by Daniel Lovette for compatibility with Python 3.6.9
 
 PERMANENT_CACHE_FNAME = "/tmp/permanent_cache.txt"
 TEMP_CACHE_FNAME = "/tmp/this_page_cache.txt"
-DEBUG = True
 DISABLE_CACHING = True
 
 class Response:
@@ -68,6 +68,8 @@ def get(baseurl, params=None, headers=None, private_keys_to_ignore=["key", "secr
     If not found, fetch data from the internet.
     """
 
+    logger = logging.getLogger('requests_with_caching')
+
     if params == None:
         params = {}
     for k in params:
@@ -80,8 +82,7 @@ def get(baseurl, params=None, headers=None, private_keys_to_ignore=["key", "secr
     cache_key = make_cache_key(baseurl, params, private_keys_to_ignore)
 
     full_url = requests.Request("GET", baseurl, params=params, headers=headers).prepare().url
-    if DEBUG:
-        print(ctime() + ": fetching " + full_url)
+    logger.info(ctime() + ": fetching " + full_url)
 
     if not DISABLE_CACHING:
 
@@ -89,23 +90,20 @@ def get(baseurl, params=None, headers=None, private_keys_to_ignore=["key", "secr
         permanent_cache = _read_from_file(permanent_cache_file)
         temp_cache = _read_from_file(temp_cache_file)
         if cache_key in temp_cache:
-            if DEBUG:
-                print("found in temp_cache")
+            logger.debug("found in temp_cache")
             # make a Response object containing text from the change, and the full_url that would have been fetched
             return Response(temp_cache[cache_key], full_url)
         elif cache_key in permanent_cache:
-            if DEBUG:
-                print("found in permanent_cache")
+            logger.debug("found in permanent_cache")
             # make a Response object containing text from the change, and the full_url that would have been fetched
             return Response(permanent_cache[cache_key], full_url)
 
-    if DEBUG:
-        print("new; adding to cache")
+    logger.debug("new; adding to cache")
     # actually request it
     resp = requests.get(baseurl, params=params, headers=headers)
     # save it
     if resp.status_code == requests.codes.ok:
         add_to_cache(temp_cache_file, cache_key, resp.text)
-    elif DEBUG:
-        print(f"not adding due to error code {resp.status_code}")
+    else:
+        logger.debug(f"not adding due to error code {resp.status_code}")
     return resp
