@@ -1,0 +1,14 @@
+[Unit]
+Description=tikka stock ticker flask instance
+After=network.target
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=3
+User=python
+ExecStart=python3 /home/python/.local/bin/disco_server.py -c fullchain.pem -k privkey.pem
+WorkingDirectory=/home/python/complete_discography
+
+[Install]
+WantedBy=multi-user.target
