@@ -1,5 +1,6 @@
 import re
 import logging
+import traceback
 from complete_discography import requests_with_caching
 from bs4 import BeautifulSoup
 
@@ -69,7 +70,7 @@ def find_album_rows(soup, context=None):
 		if "Albums" in row.text:
 			grab_next = True
 		elif grab_next:
-			if 'card' in row.get('class'):
+			if row.get('class') and 'card' in row.get('class'):
 				row['class'].remove('card')
 				for img in row.find_all('img'):
 					img['src'] = img.get('data-src')
@@ -84,8 +85,6 @@ def find_album_rows(soup, context=None):
 				row = row.replace("href=\"/", "href=\""+BASE_URL)
 				row = row.replace("href='/", "href='"+BASE_URL)
 				results.append(row)
-			else:
-				break
 	if context and len(results) > 0:
 		context.publish_release_rows(results)
 	return results
@@ -147,7 +146,8 @@ def get_discography(name, context=None):
 		retval += "</table>"
 		return retval
 
-	except:
+	except BaseException as e:
 		if context:
 			context.publish_error("Invalid response from music database")
+		logging.getLogger(__name__).error(traceback.format_exc())
 		return None
