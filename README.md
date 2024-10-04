@@ -37,7 +37,7 @@ The project includes a sample Nginx configuration file in the nginx_conf folder.
 - If you are setting up Nginx from scratch, you can use the sample file as your default configuration.  Fill in your domain and the locations of your certificate and key files, and copy the file to the conf.d folder in your Nginx installation.
 
 ## Running the Application
-Open the web client in your web browser.  The location will depend on where you stored the files under the document root.  If you stored them in a folder called 'complete_discograpy', you would navigate to 'https://<server>/complete_discography'
+Open the web client in your web browser.  The location will depend on where you stored the files under the document root.  If you stored them in a folder called 'complete_discograpy', you would navigate to 'https://[YOUR_DOMAIN]/complete_discography'
 
 Enter an artist name and click 'GO'.  You should see results in a few seconds.  If not, the web console should provide some clues as to what is going on.  If you're not using Nginx as your server, the websocket proxy is the first place I would look.
 
