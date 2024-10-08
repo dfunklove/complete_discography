@@ -1,5 +1,6 @@
-import re
+import json
 import logging
+import re
 import traceback
 from complete_discography import requests_with_caching
 from bs4 import BeautifulSoup
@@ -34,13 +35,10 @@ def find_profile_links(soup, search_string):
 	"""
 
 	profile_links = {}
-	div_prefix = soup.find('div', class_='head', string=re.compile(search_string))
-	if div_prefix:
-		for s in div_prefix.next_siblings:
-			if s.name == 'div':  # Found the aliases!
-				for a in s.find_all('a'):
-					profile_links[a.text] = a.get('href')
-				break
+	target = soup.find(string=search_string)
+	if target:
+		for a in target.parent.parent.parent.find('td').find_all('a'):
+			profile_links[a.text] = a.get('href')
 	return profile_links
 
 def find_alias_links(soup):
@@ -49,7 +47,21 @@ def find_alias_links(soup):
 def find_group_links(soup):
 	return find_profile_links(soup, "In Groups")
 
-def find_album_rows(soup, context=None):
+def find_album_rows(url, context=None):
+	# Results are paginated so we must keep fetching until they are blank.
+	# Assume results will be empty if we go beyond the last page.
+	album_rows = []
+	temp_rows = []
+	page = 1
+	while page == 1 or (len(temp_rows) > 0 and page <= 50):
+		artist_page = requests_with_caching.get(url, {'page':page})
+		soup = BeautifulSoup(artist_page.text, PARSER)
+		temp_rows = find_album_rows_in_page(soup, context)
+		album_rows += temp_rows
+		page += 1
+	return album_rows
+
+def find_album_rows_in_page(soup, context=None):
 	"""
 	In the given soup, find the table rows which contain album information.
 	Pass the results to the context before returning them.
@@ -60,31 +72,45 @@ def find_album_rows(soup, context=None):
 	Optional Parameters:
 	context: an object which has the methods publish_release_rows and publish_complete
 	"""
-
+	albums = []
 	results = []
-	table = soup.find(id="artist")
-	if not table:
-		return
-	grab_next = False
-	for row in table.find_all('tr'):
-		if "Albums" in row.text:
-			grab_next = True
-		elif grab_next:
-			if row.get('class') and 'card' in row.get('class'):
-				row['class'].remove('card')
-				for img in row.find_all('img'):
-					img['src'] = img.get('data-src')
-				for button in row.find_all('button'):
-					button.decompose()
-				for a in row.find_all('a'):
-					a['target'] = '_blank'
-					a['rel'] = 'noreferrer noopener'
-				for td in row.find_all(class_=EXCLUDED_COLUMNS):
-					td.decompose()
-				row = row.prettify()
-				row = row.replace("href=\"/", "href=\""+BASE_URL)
-				row = row.replace("href='/", "href='"+BASE_URL)
-				results.append(row)
+	dsdata = soup.find(id="dsdata")
+	if not dsdata:
+		return results
+	data = json.loads(dsdata.string)["data"]
+	for key in data.keys():
+		if key.startswith("Release"):
+			release = data[key]
+			album = {}
+			album["released"] = release["released"]
+			album["siteUrl"] = release["siteUrl"]
+			album["title"] = release["title"]
+			if release["labelsNew"] != None and len(release["labelsNew"]) > 0:
+				album["label"] = release["labelsNew"][0]["displayName"]
+			else:
+				album["label"] = ""
+			artists = []
+			for artist in release["primaryArtists"]:
+				artists.append(artist["displayName"])
+			album["artists"] = artists
+			imageRef = None
+			try:
+				imageRef = release['images({\"first\":1})']["edges"][0]["node"]["__ref"]
+				album["artUrl"] = data[imageRef]["tiny"]["__ref"][24:]
+			except:
+				album["artUrl"] = ""
+			albums.append(album)
+	for album in albums:
+		row = '<tr>'
+		row += f"<td><a href=\"{album["siteUrl"]}\"><img src=\"{album["artUrl"]}\"></a></td>"
+		row += '<td>'
+		if len(album["artists"]) > 1:
+			row += " / ".join(album["artists"]) + " - "
+		row += f"<a href=\"{album["siteUrl"]}\">{album["title"]}</a></td>"
+		row += f"<td>{album["label"]}</td>"
+		row += f"<td>{album["released"]}</td>"
+		row += '</tr>'
+		results.append(row)
 	if context and len(results) > 0:
 		context.publish_release_rows(results)
 	return results
@@ -116,24 +142,15 @@ def get_discography(name, context=None):
 		soup = BeautifulSoup(artist_page.text, PARSER)
 		alias_links = find_alias_links(soup)
 		group_links = find_group_links(soup)
-		album_rows = find_album_rows(soup, context)
+		album_rows = find_album_rows(BASE_URL + artist_url, context)
 
 		# Find releases for groups
 		for link in group_links.values():
-			artist_page = requests_with_caching.get(BASE_URL + link, DEFAULT_PARAMS)
-			soup = BeautifulSoup(artist_page.text, PARSER)
-			album_rows += find_album_rows(soup, context)
+			album_rows += find_album_rows(BASE_URL + link, context)
 
-		# Find releases each alias and any groups for that alias
+		# Find releases each alias
 		for link in alias_links.values():
-			artist_page = requests_with_caching.get(BASE_URL + link, DEFAULT_PARAMS)
-			soup = BeautifulSoup(artist_page.text, PARSER)
-			album_rows += find_album_rows(soup, context)
-			group_links = find_group_links(soup)
-			for link in group_links.values():
-				artist_page = requests_with_caching.get(BASE_URL + link, DEFAULT_PARAMS)
-				soup = BeautifulSoup(artist_page.text, PARSER)
-				album_rows += find_album_rows(soup, context)
+			album_rows += find_album_rows(BASE_URL + link, context)
 
 		if context:
 			context.publish_complete()
