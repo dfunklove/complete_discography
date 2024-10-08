@@ -1,4 +1,5 @@
 import requests
+import cloudscraper
 import json
 import logging
 from time import ctime
@@ -100,7 +101,7 @@ def get(baseurl, params=None, headers=None, private_keys_to_ignore=["key", "secr
 
     logger.debug("new; adding to cache")
     # actually request it
-    resp = requests.get(baseurl, params=params, headers=headers)
+    resp = cloudscraper.CloudScraper().get(baseurl, params=params, headers=headers)
     # save it
     if resp.status_code == requests.codes.ok:
         add_to_cache(temp_cache_file, cache_key, resp.text)
