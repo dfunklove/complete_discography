@@ -102,13 +102,13 @@ def find_album_rows_in_page(soup, context=None):
 			albums.append(album)
 	for album in albums:
 		row = '<tr>'
-		row += f"<td><a href=\"{album["siteUrl"]}\"><img src=\"{album["artUrl"]}\"></a></td>"
+		row += f"<td><a href=\"{album['siteUrl']}\"><img src=\"{album['artUrl']}\"></a></td>"
 		row += '<td>'
-		if len(album["artists"]) > 1:
-			row += " / ".join(album["artists"]) + " - "
-		row += f"<a href=\"{album["siteUrl"]}\">{album["title"]}</a></td>"
-		row += f"<td>{album["label"]}</td>"
-		row += f"<td>{album["released"]}</td>"
+		if len(album['artists']) > 1:
+			row += " / ".join(album['artists']) + " - "
+		row += f"<a href=\"{album['siteUrl']}\">{album['title']}</a></td>"
+		row += f"<td>{album['label']}</td>"
+		row += f"<td>{album['released']}</td>"
 		row += '</tr>'
 		results.append(row)
 	if context and len(results) > 0:
