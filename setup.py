@@ -12,5 +12,5 @@ setup(name='complete_discography',
     long_description=open('README.md').read(),
     packages=['complete_discography'],
     scripts=['complete_discography/bin/disco.py', 'complete_discography/bin/disco_server.py'],
-    install_requires=['bs4', 'eventlet', 'flask', 'flask_socketio', 'lxml', 'requests']
+    install_requires=['bs4', 'cloudscraper', 'eventlet', 'flask', 'flask_socketio', 'lxml', 'requests', 'requests_toolbelt']
     )
