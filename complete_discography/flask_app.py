@@ -26,7 +26,7 @@ class Discography(Namespace):
   waiting for the entire table.
   """
   def on_get(self, artist_name):
-    socketio.start_background_task(complete_discography.get_discography, artist_name, self)
+    socketio.start_background_task(complete_discography.get_discography, app.config['token'], artist_name, self)
 
   # Callbacks used by get_discography
   def publish_release_rows(self, rows):
@@ -40,7 +40,8 @@ class Discography(Namespace):
 
 socketio.on_namespace(Discography('/discography'))
   
-def main(certfile=None, keyfile=None, port=5000):
+def main(certfile=None, keyfile=None, port=5000, token=None):
+  app.config['token'] = token
   if (certfile and keyfile):
     if (not path.exists(certfile)):
       sys.exit("File not found: "+certfile)

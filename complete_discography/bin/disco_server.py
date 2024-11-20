@@ -13,8 +13,9 @@ The server runs securely over wss and therefore requires a certificate file and 
   parser.add_argument('-c', '--certfile', help="server certificate file", required=True)
   parser.add_argument('-k', '--keyfile', help="private key file", required=True)
   parser.add_argument('-p', '--port', default=5000, type=int)
+  parser.add_argument('-t', '--token', help="api user token", required=True)
   args = parser.parse_args()
   
   logging.basicConfig(filename='disco_server.log', level=logging.INFO, format='[%(asctime)s] %(levelname)s [%(name)s.%(funcName)s:%(lineno)d] %(message)s')
   logger = logging.getLogger(__name__).info(f"Starting Complete Discography Server on port {args.port}")
-  flask_app.main(args.certfile, args.keyfile, args.port)
+  flask_app.main(args.certfile, args.keyfile, args.port, args.token)
