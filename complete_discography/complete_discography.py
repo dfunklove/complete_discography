@@ -39,10 +39,10 @@ def make_album_rows_from_page(page, context=None):
 	results = []
 	for release in page:
 		row = '<tr>'
-		row += f"<td><a href=\"{release.data.get("resource_url")}\"><img src=\"{release.data.get("thumb")}\"></a></td>"
-		row += f"<td>{release.data.get("artist")}</td>"
-		row += f"<td><a href=\"{release.data.get("resource_url")}\">{release.data.get("title")}</a></td>"
-		row += f"<td>{release.data.get("year")}</td>"
+		row += f"<td><a href=\"{release.data.get('resource_url')}\"><img src=\"{release.data.get('thumb')}\"></a></td>"
+		row += f"<td>{release.data.get('artist')}</td>"
+		row += f"<td><a href=\"{release.data.get('resource_url')}\">{release.data.get('title')}</a></td>"
+		row += f"<td>{release.data.get('year')}</td>"
 		row += '</tr>'
 		results.append(row)
 	if context and len(results) > 0:
